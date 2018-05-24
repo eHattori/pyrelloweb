@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <title>Pyrello</title>
+
+  <!--[if IE]>
+    <meta http-equiv="cleartype" content="on">
+    <meta http-equiv="X-UA-Compatible" content="IE=100" />
+    <![endif]-->
+
+  {% block js %}
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+    <script src="{{ STATIC_URL }}js/libs/bootstrap-datepicker.min.js"></script>
+    <script src="{{ STATIC_URL }}js/libs/bootstrap-datepicker.pt-BR.min.js"></script>
+    <script src="{{ STATIC_URL }}js/base.js"></script>
+  {% endblock js %}
+
+  {% block css %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" id="bootstrap-css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/vendor/bootstrap-datepicker3.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/views/base.css">
+  {% endblock css %}
+</head>
+
+<body>
+  {% block menu %}
+  <div class="wrapper">
+    <div class="nav-side-menu">
+      <div class="brand">
+        <img src="{{ STATIC_URL }}img/common/logo_clube.png" alt="Clube da Lu" class="cdl-logo">
+        <img src="{{ STATIC_URL }}img/common/line.png" alt="Clube da Lu" class="line">
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="/" class="list-group-item list-group-item-action active"><i class="fa fa-home fa-fw"></i>Início</a>
+      </div>
+    </div>
+  {% endblock %}
+
+  {% block content %}
+  {% endblock %}
+
+</body>
+
+</html>
