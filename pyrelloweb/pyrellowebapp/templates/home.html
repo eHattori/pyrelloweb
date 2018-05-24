@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-content-wrapper">
+  <div class="main-container container-fluid">
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <text class="page-title">Início</h3>
+      </div>
+      
+      <div class="col-md-3 my-auto">
+          <div class="input-group input-group-bottom-border">
+              <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fa fa-calendar-o"></i>
+                    <text>De</text>
+                  </span>
+                </div>
+              <input type="text" id="input-date-start" class="datepicker form-control form-control-sm" />
+            </div>
+      </div>
+      <div class="col-md-3 my-auto">
+          <div class="input-group input-group-bottom-border">
+              <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fa fa-calendar-o"></i>
+                    <text>Até</text>
+                  </span>
+                </div>
+              <input type="text" id="input-date-end" class="datepicker form-control form-control-sm" />
+            </div>
+      </div>
+      <div class="col-md-3 my-auto">
+          <div class="input-group input-group-bottom-border">
+              <select class="custom-select form-control form-control-sm">
+                  <option selected="">Todos os produtos</option>
+                  <option value="1">One</option>
+                  <option value="2">Two</option>
+                  <option value="3">Three</option>
+                </select>
+            </div>
+        </div>
+     
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">ROI</div>
+          <div class="card-body">
+            <text class="card-title">4.82</text>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">ACoS</div>
+          <div class="card-body">
+            <text class="card-title">20.73%</text>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">CPA</div>
+          <div class="card-body">
+            <text class="card-title">896.36</text>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">CPC Médio</div>
+          <div class="card-body">
+            <text class="card-title">R$ 1,89</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">
+            <text class="card-title">Custo e venda</text>
+            <div class="btn-group btn-group-toggle pull-right" data-toggle="buttons">
+              <label class="btn btn-light btn-sm">
+                <input type="radio" name="options" id="opt_custo_day"> Dia
+              </label>
+              <label class="btn btn-light btn-sm active">
+                <input type="radio" name="options" id="opt_custo_week"> Semana
+              </label>
+              <label class="btn btn-light btn-sm">
+                <input type="radio" name="options" id="opt_custo_month"> Mês
+              </label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="card-borderless">
+                <div class="title">Total gasto</div>
+                <div class="text">R$ 3.500,00</div>
+              </div>
+
+              <div class="card-borderless">
+                <div class="title">Vendas totais</div>
+                <div class="text">R$ 17.000,00</div>
+              </div>
+            </div>
+          </div>
+          <canvas id="custo-venda-chart" style="height:240px" class="px-3 pb-4" />
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">
+            <text class="card-title">Funil de Vendas</text>
+            <div class="btn-group btn-group-toggle pull-right" data-toggle="buttons">
+              <label class="btn btn-light btn-sm">
+                <input type="radio" name="options" id="opt_funil_day"> Dia
+              </label>
+              <label class="btn btn-light btn-sm active">
+                <input type="radio" name="options" id="opt_funil_week"> Semana
+              </label>
+              <label class="btn btn-light btn-sm">
+                <input type="radio" name="options" id="opt_funil_month"> Mês
+              </label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="card-borderless">
+                <div class="title">Impressões</div>
+                <div class="text">R$ 5.700.000</div>
+              </div>
+
+              <div class="card-borderless">
+                <div class="title">Cliques</div>
+                <div class="text">R$ 1.898</div>
+              </div>
+
+              <div class="card-borderless">
+                <div class="title">Conversões</div>
+                <div class="text">4</div>
+              </div>
+            </div>
+          </div>
+          <canvas id="funil-chart" style="height:240px" class="px-3 pb-4" />
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="card card-single-value">
+          <div class="card-header">Latência de vendas</div>
+          <div class="py-3">
+            <p class="chart-title">Período de venda após clique na vitrine patrocinada</p>
+            <canvas id="latencia-vendas-chart" style="height:200px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card card-single-value">
+          <div class="card-header">Vendas por loja</div>
+          <div class="py-3">
+            <p class="chart-title">Percentual de vendas por loja</p>
+            <canvas id="vendas-loja-chart" style="height:200px;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('.datepicker').datepicker({language: 'pt-BR'});
+      $('#input-date-start,#input-date-vendas-start').datepicker('setDate', new Date(2017,0,1));
+      $('#input-date-end,#input-date-vendas-end').datepicker('setDate', new Date(2018,0,1));
+
+      new Chart($("#custo-venda-chart"), {
+        type: 'line',
+        options: {
+          responsive: false,
+          legend: {
+            position: 'right'
+          }
+        },
+        data: {
+          labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+          datasets: [{
+            data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+            label: "Custo",
+            backgroundColor: "#50e3c2",
+            borderColor: "#50e3c2",
+            fill: false
+          }, {
+            data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+            label: "Vendas",
+            backgroundColor: "#8e3c96",
+            borderColor: "#8e3c96",
+            fill: false
+          }]
+        }
+      });
+
+
+      new Chart($("#funil-chart"), {
+        type: 'line',
+        options: {
+          responsive: false,
+          legend: {
+            position: 'right'
+          }
+        },
+        data: {
+          labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+          datasets: [{
+            data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+            label: "Impressões",
+            backgroundColor: "#763091",
+            borderColor: "#763091",
+            fill: false
+          }, {
+            data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+            label: "Cliques",
+            backgroundColor: "#fcc00f",
+            borderColor: "#fcc00f",
+            fill: false
+          }, {
+            data: [180, 250, 211, 102, 445, 409, 547, 1002, 2700, 3267],
+            label: "Conversões",
+            backgroundColor: "#dbbbd9",
+            borderColor: "#dbbbd9",
+            fill: false
+          }
+          ]
+        }
+      });
+
+
+
+      new Chart($("#latencia-vendas-chart"), {
+        type: 'doughnut',
+        data: {
+          labels: ["Mesmo dia", "1 dia depois", "2 dias depois", "3 dias depois", "4 a 10 dias depois", "11 a 30 dias depois"],
+          datasets: [{
+            backgroundColor: ["#2c82be", "#dbecf8", "#76ddfb", "#2c82be", "#76ddfb", "#dbecf8"],
+            data: [2478, 5267, 734, 784, 433, 310]
+          }]
+        },
+        options: {
+          responsive: false,
+          legend: {
+            position: 'right',
+          }
+        }
+      });
+
+      new Chart($("#vendas-loja-chart"), {
+        type: 'doughnut',
+        data: {
+          labels: ["Magazine Luiza", "Clube da Lu", "Quero de Casamento"],
+          datasets: [{
+            backgroundColor: ["#2c82be", "#dbecf8", "#76ddfb"],
+            data: [65, 20, 15]
+          }]
+        },
+        options: {
+          responsive: false,
+          legend: {
+            position: 'right',
+          }
+        }
+      });
+
+    });
+
+  </script>
+  {% endblock %}
