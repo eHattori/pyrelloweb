@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
-def menu(reqeust, board_id):
-    return HTTPResponse("you're looking at board %s." % board_id)
+def menu(request):
+    return HttpResponse("")
