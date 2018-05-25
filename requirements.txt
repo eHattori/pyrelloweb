@@ -1,0 +1,5 @@
+-r django/requirements/requirements.txt
+
+uWSGI==2.0.15
+django-redis-cache==1.7.1
+hiredis==0.2.0

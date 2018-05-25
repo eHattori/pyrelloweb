@@ -12,10 +12,15 @@
 }
 .nav-side-menu .brand {
   background-color: #23282e;
-  line-height: 50px;
+  line-height: 80px;
   display: block;
   text-align: center;
-  font-size: 14px;
+  font-size: 18px;
+}
+
+.nav-side-menu .brand a {
+  color: white;
+  text-decoration: none;
 }
 .nav-side-menu .toggle-btn {
   display: none;
@@ -87,8 +92,8 @@
 }
 .nav-side-menu li {
   padding-left: 0px;
-  border-left: 3px solid #2e353d;
-  border-bottom: 1px solid #23282e;
+  border-left: 8px solid #2e353d;
+  border-bottom: 18px solid #23282e;
 }
 .nav-side-menu li a {
   text-decoration: none;
