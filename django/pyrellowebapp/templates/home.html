@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load graphics_tags %}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <div class="page-content-wrapper">
 <div class="main-container container-fluid">
     <div class="row mb-3">
@@ -14,14 +16,64 @@
         <div class="col-md-12">
             <div class="card card-single-value mb-3">
                 <div class="card-header">
+                    <text class="card-title">Leadtime</text>
+                </div>
+                <div class="card-body">
+                    <div id="leadtime"></div>
+                </div>
+                {% leadtime as leadtime_items %}
+
+                <script type="text/javascript">
+                    google.charts.load('current', {packages: ['corechart', 'line']});
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                          var data = new google.visualization.DataTable();
+                          data.addColumn('number', 'X');
+                          data.addColumn('number', 'Leadtime');
+
+                          var list_data = [
+                            {% for leadtime_item in leadtime_items %}
+                            [{% for item in leadtime_item %}  {{item}}, {% endfor %}],
+                            {% endfor %}
+                          ];
+
+                          data.addRows(list_data);
+
+                          var options = {
+                            hAxis: {
+                              title: 'Cards'
+                            },
+                            vAxis: {
+                              title: 'Leadtime'
+                            }
+                          };
+
+                          var chart = new
+                        google.visualization.LineChart(document.getElementById('leadtime'));
+
+                          chart.draw(data, options);
+                        }
+               </script>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-single-value mb-3">
+                <div class="card-header">
                     <text class="card-title">Histogram</text>
                 </div>
                 <div class="card-body">
                     <div id="histogram"></div>
                 </div>
                 {% histogram as histogram_items %}
-                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
                 <script type="text/javascript">
+                    var card = "card";
                     google.charts.load("current", {packages:["corechart"]});
                     google.charts.setOnLoadCallback(drawChart);
                     function drawChart() {

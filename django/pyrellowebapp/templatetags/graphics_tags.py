@@ -37,6 +37,18 @@ def histogram():
     for card in board.card_set.all():
         leadtime = card.get_leadtime()
         if leadtime != None:
-            histogram.append(["0", card.get_leadtime()])
-    print(histogram)
+            histogram.append(['card', card.get_leadtime()])
     return histogram
+
+@register.simple_tag
+def leadtime():
+    board = Board.objects.get(id=1)
+    leadtime_graph=[]
+    i=0
+    for card in board.card_set.all():
+        leadtime = card.get_leadtime()
+        if leadtime != None:
+            i+=1
+            leadtime_graph.append([i, card.get_leadtime()])
+    print(leadtime_graph)
+    return leadtime_graph
