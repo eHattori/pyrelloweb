@@ -43,7 +43,7 @@
   {% block menu %}
   <div class="wrapper">
      <div class="nav-side-menu">
-   <div class="brand">Brand Logo</div>
+   <div class="brand">Luiza Labs Agile Metrics</div>
    <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
    
    <div class="menu-list">
@@ -51,7 +51,7 @@
        {% menu as menu_links %}
        {% for menu_item in menu_links %}
          <li data-toggle="collapse" data-target="#service" class="collapsed">
-           <a href="{{menu_item.link}}"><i class="fa fa-globe fa-lg"></i> {{menu_item.menu}} <span class="arrow"></span></a>
+           <a href="{{menu_item.link}}"><i class="fa fa-globe fa-lg"></i> {{menu_item.menu}} </span></a>
          </li>  
        {% endfor %}
      </ul>

@@ -206,13 +206,15 @@ class Command(BaseCommand):
                     if action_value != None:
                         try:
                             column = models.Column.objects.get(column_id = action_value["list_id"])
+
+                            card_dict["transactions"].append( models.Transaction(
+                                    date = action_value['date'], 
+                                    column = column)
+                            )
+
                         except:
                             pass
 
-                        card_dict["transactions"].append( models.Transaction(
-                                date = action_value['date'], 
-                                column = column)
-                        )
 
                 self.save_board_cards(card_dict, board)
             print("Board %s exported" % board_name)

@@ -29,7 +29,15 @@ def histogram(request):
                 histogram.append(['card', card.get_leadtime()])
     return histogram
 
-
+@register.simple_tag
+def page_title(request):
+    board_id = request.GET.get('board_id', None)
+    if board_id:
+        board = Board.objects.get(board_id=board_id)
+        return board.name
+    return "Início"
+ 
+ 
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
@@ -45,7 +53,8 @@ def leadtime(request):
                 i += 1
                 percentil_leadtime.append(leadtime)
                 leadtime_graph.append([i, leadtime])
-    return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
+        return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
+    return []
 
 @register.simple_tag
 def throughput(request):
@@ -56,8 +65,8 @@ def throughput(request):
         data, median, mean = board.get_throughput()
         for week in data.keys():
             throughput_graph.append([week, data[week]])
-
-    return [throughput_graph, "%.2f" % round(median,2), "%.2f" % round(mean,2)]
+        return [throughput_graph, "%.2f" % round(median,2), "%.2f" % round(mean,2)]
+    return []
 
 @register.simple_tag
 def cfd(request):

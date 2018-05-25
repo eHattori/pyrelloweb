@@ -36,9 +36,12 @@ class Board(models.Model):
     def get_cfd(self):
         for card in self.card_set.all():
             pass
-
+    
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 
 class Label(models.Model):
