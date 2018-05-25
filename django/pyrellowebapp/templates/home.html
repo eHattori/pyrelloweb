@@ -11,8 +11,80 @@
             Início</h3>
         </div>
     </div>
+
     {% throughput request as throughput_items %}
-    {% if throughput_items %}
+
+    {% leadtime request as leadtime_items %}
+     <div class="row">
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">90 Percentil</div>
+          <div class="card-body">
+            <text class="card-title">{{ leadtime_items.1 }}</text>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">Throughput Média</div>
+          <div class="card-body">
+            <text class="card-title">{{ throughput_items.2}}</text>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-single-value mb-3">
+          <div class="card-header">Throughput Mediana</div>
+          <div class="card-body">
+            <text class="card-title">{{ throughput_items.1 }}</text>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% cfd request as cfd_items %}
+    {% if cfd_items %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-single-value mb-3">   
+                <div class="card-header">
+                    <text class="card-title">CFD</text>
+                </div>
+                <div class="card-body">
+                    <div id="cfd"></div>
+                </div>
+                <script type="text/javascript">
+                      google.charts.load('current', {'packages':['corechart']});
+                      google.charts.setOnLoadCallback(drawChart);
+
+                      function drawChart() {
+                        var data = google.visualization.arrayToDataTable([
+                          ['Year', 'Sales', 'Expenses'],
+                          ['2013',  1000,      400],
+                          ['2014',  1170,      460],
+                          ['2015',  660,       1120],
+                          ['2016',  1030,      540]
+                        ]);
+
+                        var options = {
+                          isStacked: true,
+                          title: 'Company Performance',
+                          hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
+                          vAxis: {minValue: 0}
+                        };
+
+                        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+                        chart.draw(data, options);
+                      }
+                </script>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+    {% if throughput_items.0 %}
     <div class="row">
         <div class="col-md-12">
             <div class="card card-single-value mb-3">   
@@ -35,13 +107,11 @@
 
 
                       var list_data = [
-                        {% for throughput_item in throughput_items %}
+                        {% for throughput_item in throughput_items.0 %}
                         [{v:{{ throughput_item.0 }}, f:
                           'Semana {{throughput_item.0}}'}, {{ throughput_item.1 }}],
                         {% endfor %}
                       ];
-
-                          
                           data.addRows(list_data);
 
                           var options = {
@@ -66,7 +136,7 @@
     {% endif %}
 
 
-    {% leadtime request as leadtime_items %}
+
     {% if leadtime_items %}
     <div class="row">
         <div class="col-md-12">
@@ -89,7 +159,7 @@
                           data.addColumn('number', 'Leadtime');
 
                           var list_data = [
-                            {% for leadtime_item in leadtime_items %}
+                            {% for leadtime_item in leadtime_items.0 %}
                             [{% for item in leadtime_item %}  {{item}}, {% endfor %}],
                             {% endfor %}
                           ];

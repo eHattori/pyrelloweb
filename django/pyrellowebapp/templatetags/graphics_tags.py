@@ -2,7 +2,7 @@
 from django import template
 
 from pyrellowebapp.models import Board
-
+import numpy
 register = template.Library()
 
 
@@ -38,12 +38,14 @@ def leadtime(request):
         board = Board.objects.get(board_id=board_id)
         leadtime_graph = []
         i = 0
+        percentil_leadtime = []
         for card in board.card_set.all():
             leadtime = card.get_leadtime()
             if leadtime is not None:
                 i += 1
-                leadtime_graph.append([i, card.get_leadtime()])
-    return leadtime_graph
+                percentil_leadtime.append(leadtime)
+                leadtime_graph.append([i, leadtime])
+    return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
 
 @register.simple_tag
 def throughput(request):
@@ -51,8 +53,18 @@ def throughput(request):
     throughput_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        data = board.get_throughput()
+        data, median, mean = board.get_throughput()
         for week in data.keys():
             throughput_graph.append([week, data[week]])
-        
-    return throughput_graph
+
+    return [throughput_graph, "%.2f" % round(median,2), "%.2f" % round(mean,2)]
+
+@register.simple_tag
+def cfd(request):
+    board_id = request.GET.get('board_id', None)
+    cfd_graph = []
+    if board_id:
+        board = Board.objects.get(board_id=board_id)
+        data = board.get_cfd()
+ 
+    return cfd_graph

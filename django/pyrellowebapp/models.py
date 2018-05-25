@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 
+import numpy
 
 class Board(models.Model):
     name = models.CharField(max_length=250)
@@ -28,8 +29,13 @@ class Board(models.Model):
         while i<=today_week:
             if i not in data: data[week] = 0
             i+=1
-        return data
-         
+        tp_median = numpy.median(list(data.values()))
+        tp_mean = numpy.mean(list(data.values()))
+        return [data, tp_median, tp_mean]
+    
+    def get_cfd(self):
+        for card in self.card_set.all():
+            pass
 
     def __str__(self):
         return self.name
