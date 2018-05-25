@@ -50,6 +50,29 @@ class Card(models.Model):
     labels = models.ManyToManyField(Label)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
 
+    def get_leadtime(self):
+        leadtime_list = []
+        start_columns = self.board.column_set.filter(leadtime_period="Start").order_by('importance_order')
+        end_columns = self.board.column_set.filter(leadtime_period="End").order_by('importance_order')
+        start_date = ""
+        end_date = ""
+        for transaction in self.transaction_set.all():
+            for start_column in start_columns:
+                if start_date=="" and transaction.column==start_column:
+                    start_date = transaction.date
+                    print(start_date)
+                    start_columns = []
+            for end_column in end_columns:
+                if end_date=="" and transaction.column==end_column:
+                    end_date = transaction.date
+                    print("end %s %s" % (end_date, end_column.name))
+                    end_columns = []
+        if end_date !="" and start_date!="":
+            leadtime_delta = end_date-start_date
+            return leadtime_delta.days
+        else:
+            return None
+
 
 class Transaction(models.Model):
     date = models.DateTimeField()
