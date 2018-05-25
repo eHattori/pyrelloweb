@@ -41,12 +41,37 @@ class Board(models.Model):
     class Meta:
         ordering = ['name']
 
+LABEL_SERVICE_CLASS = (
+        ("expedite", "Expedite"),
+        ("standart", "Tarefa padrão"),
+        ("fixed", "Data fixa"),
+        ("intangible", "Intangível"),
+        ("none", "Não é classe de serviço")
+        )
 
+CARD_TYPE_CHOICES = (
+        ("bug","Bug"),
+        ("value","Valor"),
+        ("improvement","Melhorias"),
+        ("ops","Ops"),
+        ("others","Outros")
+        )
 class Label(models.Model):
     name = models.CharField(max_length=250)
     label_id = models.CharField(max_length=250, unique=True)
     color = models.CharField(max_length=200, null=True, blank=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    service_class = models.CharField(
+            choices = LABEL_SERVICE_CLASS,
+            max_length=30,
+            default = "none")
+    card_type = models.CharField(
+            choices = CARD_TYPE_CHOICES,
+            max_length=40,
+            default="others")
+    def __str__(self):
+        return self.name
+ 
 
 LEADTIME_CHOICES = (
         ("Start", "Pode representar o início do Leadtime"),
