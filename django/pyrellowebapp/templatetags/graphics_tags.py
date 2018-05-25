@@ -44,3 +44,15 @@ def leadtime(request):
                 i += 1
                 leadtime_graph.append([i, card.get_leadtime()])
     return leadtime_graph
+
+@register.simple_tag
+def throughput(request):
+    board_id = request.GET.get('board_id', None)
+    throughput_graph = []
+    if board_id:
+        board = Board.objects.get(board_id=board_id)
+        data = board.get_throughput()
+        for week in data.keys():
+            throughput_graph.append([week, data[week]])
+        
+    return throughput_graph

@@ -11,6 +11,61 @@
             Início</h3>
         </div>
     </div>
+    {% throughput request as throughput_items %}
+    {% if throughput_items %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-single-value mb-3">   
+                <div class="card-header">
+                    <text class="card-title">Throughput</text>
+                </div>
+                <div class="card-body">
+                    <div id="throughput"></div>
+                </div>
+
+                <script type="text/javascript">
+                    google.charts.load('current', {packages: ['corechart', 'bar']});
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                          var data = new google.visualization.DataTable();
+                          data.addColumn('number', 'Semana');
+                          data.addColumn('number', 'Itens');
+
+
+                      var list_data = [
+                        {% for throughput_item in throughput_items %}
+                        [{v:{{ throughput_item.0 }}, f:
+                          'Semana {{throughput_item.0}}'}, {{ throughput_item.1 }}],
+                        {% endfor %}
+                      ];
+
+                          
+                          data.addRows(list_data);
+
+                          var options = {
+                            title: 'Quantidade de entregas semanais',
+                            hAxis: {
+                              title: 'Semanas',
+                            },
+                            vAxis: {
+                              title: 'Quantidade de itens'
+                            }
+                          };
+
+                          var chart = new google.visualization.ColumnChart(
+                            document.getElementById('throughput'));
+
+                          chart.draw(data, options);
+                        }
+                </script>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
     {% leadtime request as leadtime_items %}
     {% if leadtime_items %}
     <div class="row">
