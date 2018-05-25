@@ -66,6 +66,7 @@ def throughput(request):
     throughput_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
+        #TODO desfazer esse cache pq prende o board
         if board.board_id not in cache.keys():
             cache[board.board_id] = board.get_throughput()
 

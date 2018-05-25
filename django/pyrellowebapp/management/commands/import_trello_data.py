@@ -169,6 +169,7 @@ class Command(BaseCommand):
                 "token": board.trello_user_token
             }
 
+            print("%s - exporting..." % board.name)
             board_id = board.board_id
             card_list = self.get_card_list(board_id, querystring)
             board.label_set.set(self.get_all_board_labels(board.board_id,
@@ -176,7 +177,7 @@ class Command(BaseCommand):
             board.column_set.set(self.get_all_board_columns(board.board_id,
                 querystring), bulk=False)
 
-            print("%s - exporting..." % board.name)
+
 
             board_name = board.name
 
