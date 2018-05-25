@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load graphics_tags %}
 <div class="page-content-wrapper">
   <div class="main-container container-fluid">
     <div class="row mb-3">
@@ -95,19 +96,42 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="d-flex">
-              <div class="card-borderless">
-                <div class="title">Total gasto</div>
-                <div class="text">R$ 3.500,00</div>
-              </div>
 
-              <div class="card-borderless">
-                <div class="title">Vendas totais</div>
-                <div class="text">R$ 17.000,00</div>
-              </div>
-            </div>
+          <div id="histogram"></div>
+
           </div>
-          <canvas id="custo-venda-chart" style="height:240px" class="px-3 pb-4" />
+
+
+
+    {% histogram as histogram_items %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var list_data = [
+          ['card', 'leadtime'],
+          {% for histogram_item in histogram_items %}
+          [{% for item in histogram_item %}  {{item}}, {% endfor %}],
+          {% endfor %}
+        ];
+        var data = google.visualization.arrayToDataTable(list_data);
+
+        var options = {
+          title: 'Quantidade de cards entregues por período de tempo',
+          legend: { position: 'none' },
+        };
+
+        var chart = new google.visualization.Histogram(document.getElementById('histogram'));
+        chart.draw(data, options);
+      }
+    </script>
+
+
+
+
+
+
         </div>
       </div>
     </div>
@@ -177,38 +201,12 @@
   </div>
 
   <script>
+    
     $(document).ready(function () {
       $('.datepicker').datepicker({language: 'pt-BR'});
       $('#input-date-start,#input-date-vendas-start').datepicker('setDate', new Date(2017,0,1));
       $('#input-date-end,#input-date-vendas-end').datepicker('setDate', new Date(2018,0,1));
-
-      new Chart($("#custo-venda-chart"), {
-        type: 'line',
-        options: {
-          responsive: false,
-          legend: {
-            position: 'right'
-          }
-        },
-        data: {
-          labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-          datasets: [{
-            data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-            label: "Custo",
-            backgroundColor: "#50e3c2",
-            borderColor: "#50e3c2",
-            fill: false
-          }, {
-            data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-            label: "Vendas",
-            backgroundColor: "#8e3c96",
-            borderColor: "#8e3c96",
-            fill: false
-          }]
-        }
-      });
-
-
+     
       new Chart($("#funil-chart"), {
         type: 'line',
         options: {

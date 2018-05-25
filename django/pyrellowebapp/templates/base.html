@@ -1,3 +1,4 @@
+{% load graphics_tags %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -46,38 +47,19 @@
    <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
    
    <div class="menu-list">
-
      <ul id="menu-content" class="menu-content collapse out">
-       <li>
-         <a href="#">
-           <i class="fa fa-dashboard fa-lg"></i> Dashboard
-         </a>
-       </li>
-
-       <li  data-toggle="collapse" data-target="#products" class="collapsed active">
-         <a href="#"><i class="fa fa-gift fa-lg"></i> UI Elements <span class="arrow"></span></a>
-       </li>
-       <ul class="sub-menu collapse" id="products">
-         <li class="active"><a href="#">CSS3 Animation</a> 
-        </li>
-         <li><a href="#">General</a></li>
-         <li><a href="#">Buttons</a></li>
-         <li><a href="#">Tabs & Accordions</a></li>
-         <li><a href="#">Typography</a></li>
-         <li><a href="#">FontAwesome</a></li>
-         <li><a href="#">Slider</a></li>
-         <li><a href="#">Panels</a></li>
-         <li><a href="#">Widgets</a></li>
-         <li><a href="#">Bootstrap Model</a></li>
-       </ul>
-       <li data-toggle="collapse" data-target="#service" class="collapsed">
-         <a href="#"><i class="fa fa-globe fa-lg"></i> Services <span class="arrow"></span></a>
-       </li>  
-       <ul class="sub-menu collapse" id="service">
-         <li>New Service 1</li>
-         <li>New Service 2</li>
-         <li>New Service 3</li>
-       </ul>
+       {% menu as menu_links %}
+       {% histogram as histogram_items %}
+       {% for menu_item in menu_links %}
+         <li data-toggle="collapse" data-target="#service" class="collapsed">
+           <a href="#"><i class="fa fa-globe fa-lg"></i> {{menu_item.menu}} <span class="arrow"></span></a>
+         </li>  
+         <ul class="sub-menu collapse" id="service">
+           {% for submenu_item in menu_item.submenu %} 
+           <li><a href="{{submenu_item.link}}">{{submenu_item.label}}</a></li>
+           {% endfor %}
+         </ul>
+       {% endfor %}
        <li data-toggle="collapse" data-target="#new" class="collapsed">
          <a href="#"><i class="fa fa-car fa-lg"></i> New <span class="arrow"></span></a>
        </li>
