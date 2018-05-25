@@ -6,8 +6,6 @@ import numpy
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
-    start_columns_str = models.CharField(max_length=250, blank=True, null = True)
-    end_columns_str = models.CharField(max_length=250, blank=True, null = True)
     trello_user_key = models.CharField(max_length=250)
     trello_user_token = models.CharField(max_length=250)
 
