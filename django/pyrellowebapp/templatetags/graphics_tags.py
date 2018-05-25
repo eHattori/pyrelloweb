@@ -18,15 +18,8 @@ def graphics_one():
 def menu():
     boards = Board.objects.all()
     result = []
-    GRAPHICS = [{"label": "Histogram", "link": "histogram"}]
     for board in boards:
-        menu_item = {"menu": board.name, "submenu": []}
-        for graphic in GRAPHICS:
-
-            menu_item["submenu"].append(
-                    {'label':  graphic["label"],
-                    'link': "boards/%s/%s" % (board.id, graphic["link"])})
-        
+        menu_item = {"menu": board.name, "link": "?board_id=%s" % board.id }
         result.append(menu_item)
     return result
 
