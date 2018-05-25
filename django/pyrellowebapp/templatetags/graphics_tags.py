@@ -4,8 +4,8 @@ from django import template
 from pyrellowebapp.models import Board
 import numpy
 register = template.Library()
-
-
+print ("instanciado")
+cache = {}
 @register.simple_tag
 def menu():
     boards = Board.objects.all()
@@ -24,9 +24,11 @@ def histogram(request):
         board = Board.objects.get(board_id=board_id)
         histogram = []
         for card in board.card_set.all():
-            leadtime = card.get_leadtime()
-            if leadtime is not None:
-                histogram.append(['card', card.get_leadtime()])
+            if card.card_id not in cache.keys():
+                cache[card.card_id]=card.get_leadtime()
+            leadtime = cache[card.card_id]
+            if leadtime is not None and leadtime>=0:
+                histogram.append(['card', leadtime])
     return histogram
 
 @register.simple_tag
@@ -48,8 +50,10 @@ def leadtime(request):
         i = 0
         percentil_leadtime = []
         for card in board.card_set.all():
-            leadtime = card.get_leadtime()
-            if leadtime is not None:
+            if card.card_id not in cache.keys():
+                cache[card.card_id] = card.get_leadtime()
+            leadtime = cache[card.card_id]
+            if leadtime is not None and leadtime>=0:
                 i += 1
                 percentil_leadtime.append(leadtime)
                 leadtime_graph.append([i, leadtime])
@@ -62,7 +66,10 @@ def throughput(request):
     throughput_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        data, median, mean = board.get_throughput()
+        if board.board_id not in cache.keys():
+            cache[board.board_id] = board.get_throughput()
+
+        data, median, mean = cache[board.board_id]
         for week in data.keys():
             throughput_graph.append([week, data[week]])
         return [throughput_graph, "%.2f" % round(median,2), "%.2f" % round(mean,2)]
