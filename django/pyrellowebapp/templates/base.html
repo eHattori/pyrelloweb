@@ -49,31 +49,11 @@
    <div class="menu-list">
      <ul id="menu-content" class="menu-content collapse out">
        {% menu as menu_links %}
-       {% histogram as histogram_items %}
        {% for menu_item in menu_links %}
          <li data-toggle="collapse" data-target="#service" class="collapsed">
            <a href="{{menu_item.link}}"><i class="fa fa-globe fa-lg"></i> {{menu_item.menu}} <span class="arrow"></span></a>
          </li>  
        {% endfor %}
-       <li data-toggle="collapse" data-target="#new" class="collapsed">
-         <a href="#"><i class="fa fa-car fa-lg"></i> New <span class="arrow"></span></a>
-       </li>
-       <ul class="sub-menu collapse" id="new">
-         <li>New New 1</li>
-         <li>New New 2</li>
-         <li>New New 3</li>
-       </ul>
-       <li>
-         <a href="#">
-           <i class="fa fa-user fa-lg"></i> Profile
-         </a>
-       </li>
-
-       <li>
-         <a href="#">
-           <i class="fa fa-users fa-lg"></i> Users
-         </a>
-       </li>
      </ul>
    </div>
  </div>

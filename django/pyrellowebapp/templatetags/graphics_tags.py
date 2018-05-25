@@ -7,41 +7,40 @@ register = template.Library()
 
 
 @register.simple_tag
-def graphics_one():
-    testando = Board.objects.all()
-    return {
-        'chave_1': testando,
-    }
-
-
-@register.simple_tag
 def menu():
     boards = Board.objects.all()
     result = []
     for board in boards:
-        menu_item = {"menu": board.name, "link": "?board_id=%s" % board.id }
+        menu_item = {"menu": board.name, "link": "?board_id=%s" % board.board_id}
         result.append(menu_item)
     return result
 
-@register.simple_tag
-def histogram():
-    board = Board.objects.get(id=1)
-    histogram=[]
-    for card in board.card_set.all():
-        leadtime = card.get_leadtime()
-        if leadtime != None:
-            histogram.append(['card', card.get_leadtime()])
-    return histogram
 
 @register.simple_tag
-def leadtime():
-    board = Board.objects.get(id=1)
-    leadtime_graph=[]
-    i=0
-    for card in board.card_set.all():
-        leadtime = card.get_leadtime()
-        if leadtime != None:
-            i+=1
-            leadtime_graph.append([i, card.get_leadtime()])
-    print(leadtime_graph)
+def histogram(request):
+    board_id = request.GET.get('board_id', None)
+    histogram = None
+    if board_id:
+        board = Board.objects.get(board_id=board_id)
+        histogram = []
+        for card in board.card_set.all():
+            leadtime = card.get_leadtime()
+            if leadtime is not None:
+                histogram.append(['card', card.get_leadtime()])
+    return histogram
+
+
+@register.simple_tag
+def leadtime(request):
+    board_id = request.GET.get('board_id', None)
+    leadtime_graph = None
+    if board_id:
+        board = Board.objects.get(board_id=board_id)
+        leadtime_graph = []
+        i = 0
+        for card in board.card_set.all():
+            leadtime = card.get_leadtime()
+            if leadtime is not None:
+                i += 1
+                leadtime_graph.append([i, card.get_leadtime()])
     return leadtime_graph
