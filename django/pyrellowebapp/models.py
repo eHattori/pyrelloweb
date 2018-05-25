@@ -1,19 +1,19 @@
 from django.db import models
-from datetime import datetime
+import datetime
 
 import numpy
 
+from pprint import pprint
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
     trello_user_key = models.CharField(max_length=250)
     trello_user_token = models.CharField(max_length=250)
-
-
+    
     def get_throughput(self):
         cards = []
         data = {}
-        today_week = datetime.today().isocalendar()[1]
+        today_week = datetime.datetime.today().isocalendar()[1]
     
         for card in self.card_set.all():
             end_date = card.end_date
@@ -32,6 +32,26 @@ class Board(models.Model):
         return [data, tp_median, tp_mean]
     
     def get_cfd(self):
+        date_starter = datetime.datetime.today() - datetime.timedelta(days=30)
+        import pytz
+        utc=pytz.UTC
+        date_starter = utc.localize(date_starter)
+        columns = self.column_set.all()
+        cfd_hash = {}
+        while date_starter <= datetime.datetime.today().replace(tzinfo=utc):
+            cfd_hash[date_starter]= {}
+            for column in columns:
+                cfd_hash[date_starter][column]=[]
+                for transaction in column.transaction_set.all():
+                    end_date = transaction.end_date
+                    if date_starter >= transaction.date.replace(tzinfo=utc) and date_starter <= end_date.replace(tzinfo=utc):
+                        cfd_hash[date_starter][column].append(transaction.card.id)
+            date_starter+=datetime.timedelta(days=1)
+            date_starter.replace(tzinfo=utc)
+            
+
+        pprint(cfd_hash)
+
         for card in self.card_set.all():
             pass
     
@@ -84,6 +104,7 @@ class Column(models.Model):
     column_id = models.CharField(max_length=250, unique=True)
     active = models.BooleanField(default=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE) 
+    board_position = models.FloatField(default=0)
     importance_order = models.IntegerField(default=1000)
     leadtime_period = models.CharField(
             max_length=5,
@@ -137,9 +158,19 @@ class Card(models.Model):
             return None
 
 
+
 class Transaction(models.Model):
     date = models.DateTimeField()
     column = models.ForeignKey(Column, on_delete=models.CASCADE)
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('column', 'date',)
+
+    @property
+    def end_date(self):
+        result = Transaction.objects.filter(card__id=self.card.id).filter(
+                date__gt=self.date).order_by('date')
+        try:
+            return result[0].date
+        except:
+            return datetime.datetime.today()
