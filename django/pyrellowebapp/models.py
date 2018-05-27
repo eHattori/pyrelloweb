@@ -30,6 +30,7 @@ class Board(models.Model):
         tp_mean = numpy.mean(list(data.values()))
         return [data, tp_median, tp_mean]
     
+
     def get_cfd(self):
         date_starter = datetime.date.today() - datetime.timedelta(days=30)
         columns = self.column_set.all().order_by('-board_position')
