@@ -1,9 +1,8 @@
 from django.db import models
 import datetime
-
 import numpy
-
 from pprint import pprint
+
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
@@ -32,28 +31,66 @@ class Board(models.Model):
         return [data, tp_median, tp_mean]
     
     def get_cfd(self):
-        date_starter = datetime.datetime.today() - datetime.timedelta(days=30)
-        import pytz
-        utc=pytz.UTC
-        date_starter = utc.localize(date_starter)
-        columns = self.column_set.all()
+        date_starter = datetime.date.today() - datetime.timedelta(days=30)
+        columns = self.column_set.all().order_by('-board_position')
         cfd_hash = {}
-        while date_starter <= datetime.datetime.today().replace(tzinfo=utc):
+        class EndColumn: name = "Done"
+        cards_done = []
+        while date_starter <= datetime.date.today():
             cfd_hash[date_starter]= {}
             for column in columns:
-                cfd_hash[date_starter][column]=[]
-                for transaction in column.transaction_set.all():
+
+                transactions = column.transaction_set.all()
+                if column.leadtime_period=="End":
+                    column = EndColumn
+                if column not in cfd_hash[date_starter]:
+                    cfd_hash[date_starter][column]=[]
+
+                for transaction in transactions:
                     end_date = transaction.end_date
-                    if date_starter >= transaction.date.replace(tzinfo=utc) and date_starter <= end_date.replace(tzinfo=utc):
+                    if (transaction.card.id in cards_done and
+                            column.name=="Done") or (date_starter >=
+                                    transaction.date.date() and date_starter <=
+                                    end_date.date() and
+                                    transaction.date.date()!=end_date.date()):
+                        print("%s - %s - %s - %s"
+                                % (transaction.date.date(),end_date.date(),
+                                transaction.card.name, column.name)) 
                         cfd_hash[date_starter][column].append(transaction.card.id)
+                        if column.name=="Done":
+                            cards_done.append(transaction.card.id)
             date_starter+=datetime.timedelta(days=1)
-            date_starter.replace(tzinfo=utc)
             
+        cfd_header = ['Dia']
 
-        pprint(cfd_hash)
+        cfd_list = [cfd_header]
+        done_start = 0
+        for day in cfd_hash.keys():
+            cfd_day_list = [str(day)]
+            end_column_filled = False
+            for column in columns:
+                if not (column.leadtime_period=="End" and end_column_filled == True) and column.active:
+                    if column.leadtime_period=="End":
+                        column = EndColumn
+                        end_column_filled = True
+                        total = len(cfd_hash[day][column])
+                        total = total-done_start
+                    else:
+                        total = len(cfd_hash[day][column])
+                    if column.name not in cfd_header:
+                        cfd_header.append(column.name)
+                        cfd_list[0] = cfd_header
+                    cfd_day_list.append(total)
 
-        for card in self.card_set.all():
-            pass
+            cfd_list.append(cfd_day_list)
+            if len(cfd_list)==2:
+                done_index = cfd_list[0].index('Done')
+                done_start=cfd_day_list[done_index]
+                cfd_list[1][done_index]=0
+
+
+        return cfd_list
+
     
     def __str__(self):
         return self.name
@@ -173,4 +210,4 @@ class Transaction(models.Model):
         try:
             return result[0].date
         except:
-            return datetime.datetime.today()
+            return datetime.datetime.today()+datetime.timedelta(days=1)
