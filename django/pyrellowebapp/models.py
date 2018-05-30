@@ -1,19 +1,18 @@
 from django.db import models
-from datetime import datetime
-
+import datetime
 import numpy
+from pprint import pprint
 
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
     trello_user_key = models.CharField(max_length=250)
     trello_user_token = models.CharField(max_length=250)
-
-
+    
     def get_throughput(self):
         cards = []
         data = {}
-        today_week = datetime.today().isocalendar()[1]
+        today_week = datetime.datetime.today().isocalendar()[1]
     
         for card in self.card_set.all():
             end_date = card.end_date
@@ -31,9 +30,69 @@ class Board(models.Model):
         tp_mean = numpy.mean(list(data.values()))
         return [data, tp_median, tp_mean]
     
+
     def get_cfd(self):
-        for card in self.card_set.all():
-            pass
+        date_starter = datetime.date.today() - datetime.timedelta(days=30)
+        columns = self.column_set.all().order_by('-board_position')
+        cfd_hash = {}
+        class EndColumn: name = "Done"
+        cards_done = []
+        debug={}
+        while date_starter <= datetime.date.today():
+            cfd_hash[date_starter]= {}
+            for column in columns:
+
+                transactions = column.transaction_set.all()
+                if column.leadtime_period=="End":
+                    column = EndColumn
+                if column not in cfd_hash[date_starter]:
+                    cfd_hash[date_starter][column]=[]
+
+                for transaction in transactions:
+                    end_date = transaction.end_date
+                    if (transaction.card.id in cards_done and
+                            column.name=="Done") or (date_starter >=
+                                    transaction.date.date() and date_starter <
+                                    end_date.date() and
+                                    transaction.date.date()!=end_date.date()):
+                        cfd_hash[date_starter][column].append(transaction.card.id)
+                        if column.name=="Backlog":
+                            debug[transaction.id]="%s - %s - %s - %s" % (transaction.card.name,column.name, transaction.date,
+                                end_date)
+
+                        if column.name=="Done":
+                            cards_done.append(transaction.card.id)
+            date_starter+=datetime.timedelta(days=1)
+        cfd_header = ['Dia']
+
+        cfd_list = [cfd_header]
+        done_start = 0
+        for day in cfd_hash.keys():
+            cfd_day_list = [str(day)]
+            end_column_filled = False
+            for column in columns:
+                if not (column.leadtime_period=="End" and end_column_filled == True) and column.active:
+                    if column.leadtime_period=="End":
+                        column = EndColumn
+                        end_column_filled = True
+                        total = len(cfd_hash[day][column])
+                        total = total-done_start
+                    else:
+                        total = len(cfd_hash[day][column])
+                    if column.name not in cfd_header:
+                        cfd_header.append(column.name)
+                        cfd_list[0] = cfd_header
+                    cfd_day_list.append(total)
+
+            cfd_list.append(cfd_day_list)
+            if len(cfd_list)==2:
+                done_index = cfd_list[0].index('Done')
+                done_start=cfd_day_list[done_index]
+                cfd_list[1][done_index]=0
+
+
+        return cfd_list
+
     
     def __str__(self):
         return self.name
@@ -84,6 +143,7 @@ class Column(models.Model):
     column_id = models.CharField(max_length=250, unique=True)
     active = models.BooleanField(default=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE) 
+    board_position = models.FloatField(default=0)
     importance_order = models.IntegerField(default=1000)
     leadtime_period = models.CharField(
             max_length=5,
@@ -112,7 +172,7 @@ class Card(models.Model):
             for end_column in end_columns:
                 if end_date=="" and transaction.column==end_column:
                     end_date = transaction.date
-                    end_columns = []
+                    return  end_date
         return end_date
 
     @property
@@ -137,9 +197,19 @@ class Card(models.Model):
             return None
 
 
+
 class Transaction(models.Model):
     date = models.DateTimeField()
     column = models.ForeignKey(Column, on_delete=models.CASCADE)
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('column', 'date',)
+
+    @property
+    def end_date(self):
+        result = Transaction.objects.filter(card__id=self.card.id).filter(
+                date__gt=self.date).order_by('date')
+        try:
+            return result[0].date
+        except:
+            return datetime.datetime.today()+datetime.timedelta(days=1)

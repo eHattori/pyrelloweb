@@ -24,6 +24,8 @@ class Command(BaseCommand):
                     column_obj.column_id = column["id"]
 
                 column_obj.name = column["name"]
+                column_obj.board_position = column["pos"]
+                column_obj.active = not column["closed"]
                 columns_obj_list.append(column_obj)
         return columns_obj_list
 

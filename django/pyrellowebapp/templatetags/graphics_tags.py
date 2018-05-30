@@ -4,7 +4,6 @@ from django import template
 from pyrellowebapp.models import Board
 import numpy
 register = template.Library()
-print ("instanciado")
 cache = {}
 @register.simple_tag
 def menu():
@@ -82,6 +81,6 @@ def cfd(request):
     cfd_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        data = board.get_cfd()
+        cfd_graph = board.get_cfd()
  
     return cfd_graph

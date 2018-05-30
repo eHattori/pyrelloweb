@@ -3,7 +3,7 @@ from pyrellowebapp import models
 
 class ColumnInLine(admin.StackedInline):
     model = models.Column
-    fields = ('importance_order', 'leadtime_period','active',) 
+    fields = ('importance_order', 'leadtime_period','board_position', 'active',) 
 
 class LabelInLine(admin.StackedInline):
     model = models.Label
