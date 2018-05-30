@@ -81,6 +81,10 @@ def cfd(request):
     cfd_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        cfd_graph = board.get_cfd()
+        try:
+            cfd_graph = board.graphdata_set.get(graph="CFD").data
+        except Exception as e:
+            print(e)
+            cfd_graph = []
  
     return cfd_graph

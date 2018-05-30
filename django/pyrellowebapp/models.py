@@ -37,7 +37,6 @@ class Board(models.Model):
         cfd_hash = {}
         class EndColumn: name = "Done"
         cards_done = []
-        debug={}
         while date_starter <= datetime.date.today():
             cfd_hash[date_starter]= {}
             for column in columns:
@@ -56,9 +55,6 @@ class Board(models.Model):
                                     end_date.date() and
                                     transaction.date.date()!=end_date.date()):
                         cfd_hash[date_starter][column].append(transaction.card.id)
-                        if column.name=="Backlog":
-                            debug[transaction.id]="%s - %s - %s - %s" % (transaction.card.name,column.name, transaction.date,
-                                end_date)
 
                         if column.name=="Done":
                             cards_done.append(transaction.card.id)
@@ -90,7 +86,7 @@ class Board(models.Model):
                 done_start=cfd_day_list[done_index]
                 cfd_list[1][done_index]=0
 
-
+        print(cfd_list)
         return cfd_list
 
     
@@ -213,3 +209,23 @@ class Transaction(models.Model):
             return result[0].date
         except:
             return datetime.datetime.today()+datetime.timedelta(days=1)
+
+
+GRAPH_CHOICES = (
+        ("Leadtime", "Leadtime"),
+        ("Throughput", "Throughput"),
+        ("CFD", "CFD"),
+        ("Histogram", "Leadtime Histogram"),
+        ("90Percentil", "90 Percentil Leadtime"),
+        ("ThroughputMean", "Média Throughput"),
+        ("ThroughputMedian", "Mediana Throughput"),
+
+)
+class GraphData(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    graph = models.CharField(
+            max_length=100,
+            choices=GRAPH_CHOICES,
+    )
+    data = models.TextField()
+
