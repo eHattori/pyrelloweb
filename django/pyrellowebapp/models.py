@@ -37,6 +37,7 @@ class Board(models.Model):
         cfd_hash = {}
         class EndColumn: name = "Done"
         cards_done = []
+        debug={}
         while date_starter <= datetime.date.today():
             cfd_hash[date_starter]= {}
             for column in columns:
@@ -51,17 +52,17 @@ class Board(models.Model):
                     end_date = transaction.end_date
                     if (transaction.card.id in cards_done and
                             column.name=="Done") or (date_starter >=
-                                    transaction.date.date() and date_starter <=
+                                    transaction.date.date() and date_starter <
                                     end_date.date() and
                                     transaction.date.date()!=end_date.date()):
-                        print("%s - %s - %s - %s"
-                                % (transaction.date.date(),end_date.date(),
-                                transaction.card.name, column.name)) 
                         cfd_hash[date_starter][column].append(transaction.card.id)
+                        if column.name=="Backlog":
+                            debug[transaction.id]="%s - %s - %s - %s" % (transaction.card.name,column.name, transaction.date,
+                                end_date)
+
                         if column.name=="Done":
                             cards_done.append(transaction.card.id)
             date_starter+=datetime.timedelta(days=1)
-            
         cfd_header = ['Dia']
 
         cfd_list = [cfd_header]
@@ -171,7 +172,7 @@ class Card(models.Model):
             for end_column in end_columns:
                 if end_date=="" and transaction.column==end_column:
                     end_date = transaction.date
-                    end_columns = []
+                    return  end_date
         return end_date
 
     @property
