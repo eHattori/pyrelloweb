@@ -67,7 +67,8 @@ class Command(BaseCommand):
             try:
                 label_obj = models.Label.objects.get(label_id=label["id"])
                 labels.append(label_obj)
-            except:
+            except Exception as e:
+                print(e)
                 pass
         try:
             card_obj.board = board
@@ -76,13 +77,15 @@ class Command(BaseCommand):
             card_obj.labels.set(labels)
 
             card_obj.save()
-        except:
+        except Exeption as e:
+            print(e)
             pass
         for transaction in card_dict["transactions"]:
             try:
                 transaction.card = card_obj
                 transaction.save()
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
     def get_list_name(self, list_id):
@@ -182,7 +185,8 @@ class Command(BaseCommand):
                     querystring), bulk=False)
                 board.column_set.set(self.get_all_board_columns(board.board_id,
                     querystring), bulk=False)
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
 
@@ -220,7 +224,7 @@ class Command(BaseCommand):
                                     column = column)
                             )
 
-                        except:
+                        except Exception as e:
                             pass
 
 
