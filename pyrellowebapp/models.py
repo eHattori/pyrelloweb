@@ -3,6 +3,14 @@ import datetime
 import numpy
 from pprint import pprint
 
+CARD_TYPE_CHOICES = (
+        ("value","Valor"),
+        ("bug","Bug"),
+        ("improvement","Melhorias"),
+        ("ops","Ops"),
+        ("others","Outros")
+        )
+
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
@@ -12,23 +20,56 @@ class Board(models.Model):
     def get_throughput(self):
         cards = []
         data = {}
+        week_total = {}
         today_week = datetime.datetime.today().isocalendar()[1]
     
         for card in self.card_set.all():
             end_date = card.end_date
             if end_date!="":
-                week = end_date.isocalendar()[1]
+                week = "%s-%s" % (end_date.isocalendar()[1], end_date.isocalendar()[0])
                 if week not in data:
-                    data[week] = 1
+                    data[week] = {card.type : 1}
+                    week_total[week] = 1
+
                 else:
-                    data[week] += 1
-        i = min(data.keys())
-        while i<=today_week:
-            if i not in data: data[week] = 0
-            i+=1
-        tp_median = numpy.median(list(data.values()))
-        tp_mean = numpy.mean(list(data.values()))
-        return [data, tp_median, tp_mean]
+                    if card.type in data[week]:
+                        data[week][card.type] += 1
+                    else:
+                        data[week][card.type] = 1
+                    week_total[week] += 1
+        year_list = {}
+
+        for week in data.keys():
+            week, year = week.split('-')
+            if year not in year_list:
+                year_list[year]=[]
+            year_list[year].append(int(week))
+
+        for year in year_list.keys():
+            week = min(year_list[year])
+            last_week = today_week
+            if int(year)<datetime.datetime.today().isocalendar()[0]:
+                last_week = datetime.date(int(year), 12, 28).isocalendar()[1]
+            while week<=last_week:
+                week_key = "%s-%s" % (week, year)
+                if week_key not in data:
+                    data[week_key] = {}
+                
+                for type in CARD_TYPE_CHOICES:
+                    if type[0] not in data[week_key]:
+                        data[week_key][type[0]]=0
+                    
+                week+=1
+
+        tp_median = numpy.median(list(week_total.values()))
+        tp_mean = numpy.mean(list(week_total.values()))
+        result = { 
+                'labels': CARD_TYPE_CHOICES,
+                'data': data,
+                'median': tp_median,
+                'mean': tp_mean
+                }
+        return result
     
 
     def get_cfd(self):
@@ -86,7 +127,6 @@ class Board(models.Model):
                 done_start=cfd_day_list[done_index]
                 cfd_list[1][done_index]=0
 
-        print(cfd_list)
         return cfd_list
 
     
@@ -104,13 +144,6 @@ LABEL_SERVICE_CLASS = (
         ("none", "Não é classe de serviço")
         )
 
-CARD_TYPE_CHOICES = (
-        ("bug","Bug"),
-        ("value","Valor"),
-        ("improvement","Melhorias"),
-        ("ops","Ops"),
-        ("others","Outros")
-        )
 class Label(models.Model):
     name = models.CharField(max_length=250)
     label_id = models.CharField(max_length=250, unique=True)
@@ -170,6 +203,14 @@ class Card(models.Model):
                     end_date = transaction.date
                     return  end_date
         return end_date
+
+    @property
+    def type(self):
+        if self.labels:
+            for label in self.labels.exclude(card_type="others"):
+                if label.card_type!="others":
+                    return label.card_type
+        return "others"
 
     @property
     def start_date(self):
