@@ -1,10 +1,11 @@
-
 from django import template
-
 from pyrellowebapp.models import Board
 import numpy
+from pyrellowebapp import models
+
 register = template.Library()
-cache = {}
+cache={}
+
 @register.simple_tag
 def menu():
     boards = Board.objects.all()
@@ -29,6 +30,7 @@ def histogram(request):
             if leadtime is not None and leadtime>=0:
                 histogram.append(['card', leadtime])
     return histogram
+
 
 @register.simple_tag
 def page_title(request):
@@ -56,8 +58,10 @@ def leadtime(request):
                 i += 1
                 percentil_leadtime.append(leadtime)
                 leadtime_graph.append([i, leadtime])
+
         return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
     return []
+
 
 @register.simple_tag
 def throughput(request):
@@ -66,14 +70,40 @@ def throughput(request):
     if board_id:
         board = Board.objects.get(board_id=board_id)
         #TODO desfazer esse cache pq prende o board
+        cache={}
         if board.board_id not in cache.keys():
             cache[board.board_id] = board.get_throughput()
 
-        data, median, mean = cache[board.board_id]
-        for week in data.keys():
-            throughput_graph.append([week, data[week]])
-        return [throughput_graph, "%.2f" % round(median,2), "%.2f" % round(mean,2)]
-    return []
+        labels, data, median, mean = cache[board.board_id].values()
+        line = ""
+        sorted_data = []
+        for week_index in data.keys():
+
+            week, year = week_index.split("-")
+            if len(week)==1:
+
+
+                week="0%s" % week
+            sorted_data.append(float("%s.%s"% (year, week)))
+        sorted_data.sort()
+        for week_index in sorted_data:
+            year, week = str(week_index).split(".")
+            if len(week)==1:
+                week="%s0" % week
+            week_index="%s-%s" % (int(week), year)
+            week_values=""
+            for type in models.CARD_TYPE_CHOICES:
+                week_values += "%s," % data[week_index][type[0]]
+            line += "[ '%s', %s],"  % ( week_index, week_values)
+        throughput_graph = "[%s]" % line
+        result = { 
+                'labels': labels,
+                'data': throughput_graph,
+                'median': round(median,2),
+                'mean':  "%.2f" % round(mean,2)
+                }
+        return result
+    return {}
 
 @register.simple_tag
 def cfd(request):
