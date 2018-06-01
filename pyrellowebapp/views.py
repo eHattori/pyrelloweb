@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.http import HttpResponse
-
+from pyrellowebapp import tasks
 
 def home(request):
     if not request.user.is_authenticated:
@@ -10,8 +10,7 @@ def home(request):
         return render(request, 'home.html')
 
 def import_cmd(request):
-    from django.core.management import call_command
-    call_command('import_trello_data')
+    tasks.import_trello_data.delay()
     return HttpResponse("Command done")
 
 def trigger(request):

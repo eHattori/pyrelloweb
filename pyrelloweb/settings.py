@@ -24,10 +24,15 @@ PROJECT_PATH = os.path.join(os.path.abspath(os.path.split(__file__)[0]),)
 SECRET_KEY = '1syros2(7x9@rk!b62s6k+3bhp&o@&ghp2v42v14jzv=rk=cfq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 LOGIN_REDIRECT_URL = 'home'
+
+#Celery Config
+
+BROKER_URL = 'amqp://%s@baboon.rmq.cloudamqp.com/mnlarpot' % os.environ['RABBITMQ']
+
 
 # Application definition
 
