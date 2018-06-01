@@ -229,4 +229,4 @@ class Command(BaseCommand):
                 self.save_board_cards(card_dict, board)
             print("Board %s exported" % board_name)
 
-        exit("Done")
+        print("Done")
