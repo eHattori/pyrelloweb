@@ -69,12 +69,15 @@ class Command(BaseCommand):
                 labels.append(label_obj)
             except:
                 pass
+        try:
+            card_obj.board = board
+            card_obj.save()
 
-        card_obj.board = board
-        card_obj.save()
-        card_obj.labels.set(labels)
+            card_obj.labels.set(labels)
 
-        card_obj.save()
+            card_obj.save()
+        except:
+            pass
         for transaction in card_dict["transactions"]:
             try:
                 transaction.card = card_obj
