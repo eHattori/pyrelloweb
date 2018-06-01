@@ -30,7 +30,7 @@
         <div class="card card-single-value mb-3">
           <div class="card-header">Média Throughput</div>
           <div class="card-body">
-            <text class="card-title">{{ throughput_items.2}}</text>
+            <text class="card-title">{{ throughput_items.mean}}</text>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
         <div class="card card-single-value mb-3">
           <div class="card-header">Mediana Throughput</div>
           <div class="card-body">
-            <text class="card-title">{{ throughput_items.1 }}</text>
+            <text class="card-title">{{ throughput_items.median }}</text>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@
 
 
 
-    {% if throughput_items.0 %}
+    {% if throughput_items.data %}
     <div class="row">
         <div class="col-md-12">
             <div class="card card-single-value mb-3">   
@@ -101,20 +101,20 @@
                     function drawBasic() {
 
                           var data = new google.visualization.DataTable();
-                          data.addColumn('number', 'Semana');
-                          data.addColumn('number', 'Itens');
+                          data.addColumn('string', 'Semana');
+                      {% for type in throughput_items.labels %}
+                      data.addColumn('number', '{{type.1}}');
+                      {% endfor %}
 
-
-                      var list_data = [
-                        {% for throughput_item in throughput_items.0 %}
-                        [{v:{{ throughput_item.0 }}, f:
-                          'Semana {{throughput_item.0}}'}, {{ throughput_item.1 }}],
-                        {% endfor %}
-                      ];
+                      {% autoescape off %}
+                      var list_data = {{throughput_items.data }}
+                      {% endautoescape%}
                           data.addRows(list_data);
 
                           var options = {
                             title: 'Quantidade de entregas semanais',
+                            isStacked: true,
+                            height: 400,
                             hAxis: {
                               title: 'Semanas',
                             },
