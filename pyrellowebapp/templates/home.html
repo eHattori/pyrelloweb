@@ -155,13 +155,12 @@
 
                           var data = new google.visualization.DataTable();
                           data.addColumn('number', 'X');
-                          data.addColumn('number', 'Leadtime');
+                          data.addColumn('number', 'Card');
 
-                          var list_data = [
-                            {% for leadtime_item in leadtime_items.0 %}
-                            [{% for item in leadtime_item %}  {{item}}, {% endfor %}],
-                            {% endfor %}
-                          ];
+
+                            {% autoescape off %}
+                              var list_data = {{leadtime_items.0}};
+                            {% endautoescape %}
 
                           data.addRows(list_data);
 
@@ -170,7 +169,7 @@
                               title: 'Cards'
                             },
                             vAxis: {
-                              title: 'Leadtime'
+                              title: 'Days'
                             }
                           };
 
