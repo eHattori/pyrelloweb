@@ -43,14 +43,14 @@ def page_title(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
+    graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
             graph = board.graphdata_set.get(graph="Leadtime").data
             graph = eval(graph)
         except Exception as e:
-            graph = []
- 
+            pass 
     return graph
 
 
