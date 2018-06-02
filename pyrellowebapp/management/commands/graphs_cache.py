@@ -42,7 +42,48 @@ class Command(BaseCommand):
             graphdata = models.GraphData()
             graphdata.board = board
         graphdata.graph = "Leadtime"
-        graphdata.data = leadtime_data
+        graphdata.data = json.dumps(leadtime_data)
+        graphdata.save()
+
+    def save_throughput(self, board):
+        throughput_graph = []
+        throughput_data = board.get_throughput()
+
+        labels, data, median, mean = throughput_data.values()
+        line = ""
+        sorted_data = []
+        for week_index in data.keys():
+
+            week, year = week_index.split("-")
+            if len(week)==1:
+
+
+                week="0%s" % week
+            sorted_data.append(float("%s.%s"% (year, week)))
+        sorted_data.sort()
+        for week_index in sorted_data:
+            year, week = str(week_index).split(".")
+            if len(week)==1:
+                week="%s0" % week
+            week_index="%s-%s" % (int(week), year)
+            week_values=""
+            for type in models.CARD_TYPE_CHOICES:
+                week_values += "%s," % data[week_index][type[0]]
+            line += "[ '%s', %s],"  % ( week_index, week_values)
+        throughput_graph = "[%s]" % line
+        result = { 
+                'labels': labels,
+                'data': throughput_graph,
+                'median': round(median,2),
+                'mean':  "%.2f" % round(mean,2)
+                }
+        try:
+            graphdata = board.graphdata_set.get(graph="Throughput")
+        except Exception as e:
+            graphdata = models.GraphData()
+            graphdata.board = board
+        graphdata.graph = "Throughput"
+        graphdata.data = json.dumps(result)
         graphdata.save()
 
 
@@ -110,7 +151,7 @@ class Command(BaseCommand):
              graphdata = models.GraphData()
              graphdata.board = board
          graphdata.graph = "CFD"
-         graphdata.data =cfd_list
+         graphdata.data = cfd_list
          graphdata.save()
 
 
@@ -123,6 +164,8 @@ class Command(BaseCommand):
 
         for board in boards:
             try:
+                print("Throughput - %s" % board.name)
+                self.save_throughput(board)
                 print("Leadtime - %s" % board.name)
                 self.save_leadtime(board)
                 print("CFD - %s" % board.name)
