@@ -1,6 +1,7 @@
 from django import template
 from pyrellowebapp.models import Board
 from pyrellowebapp import models
+import json
 
 register = template.Library()
 cache={}
@@ -48,7 +49,7 @@ def leadtime(request):
         board = Board.objects.get(board_id=board_id)
         try:
             graph = board.graphdata_set.get(graph="Leadtime").data
-            graph = eval(graph)
+            graph = json.loads(graph)
         except Exception as e:
             pass 
     return graph
@@ -57,44 +58,16 @@ def leadtime(request):
 @register.simple_tag
 def throughput(request):
     board_id = request.GET.get('board_id', None)
-    throughput_graph = []
+    graph = {}
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        #TODO desfazer esse cache pq prende o board
-        cache={}
-        if board.board_id not in cache.keys():
-            cache[board.board_id] = board.get_throughput()
+        try:
+            graph = board.graphdata_set.get(graph="Throughput").data
+            graph = json.loads(graph)
+        except Exception as e:
+            pass 
+    return graph
 
-        labels, data, median, mean = cache[board.board_id].values()
-        line = ""
-        sorted_data = []
-        for week_index in data.keys():
-
-            week, year = week_index.split("-")
-            if len(week)==1:
-
-
-                week="0%s" % week
-            sorted_data.append(float("%s.%s"% (year, week)))
-        sorted_data.sort()
-        for week_index in sorted_data:
-            year, week = str(week_index).split(".")
-            if len(week)==1:
-                week="%s0" % week
-            week_index="%s-%s" % (int(week), year)
-            week_values=""
-            for type in models.CARD_TYPE_CHOICES:
-                week_values += "%s," % data[week_index][type[0]]
-            line += "[ '%s', %s],"  % ( week_index, week_values)
-        throughput_graph = "[%s]" % line
-        result = { 
-                'labels': labels,
-                'data': throughput_graph,
-                'median': round(median,2),
-                'mean':  "%.2f" % round(mean,2)
-                }
-        return result
-    return {}
 
 @register.simple_tag
 def cfd(request):
