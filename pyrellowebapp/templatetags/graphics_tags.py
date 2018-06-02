@@ -1,6 +1,5 @@
 from django import template
 from pyrellowebapp.models import Board
-import numpy
 from pyrellowebapp import models
 
 register = template.Library()
@@ -44,24 +43,15 @@ def page_title(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
-    leadtime_graph = None
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        leadtime_graph = "["
-        i = 0
-        percentil_leadtime = []
-        for card in board.card_set.all():
-            if card.card_id not in cache.keys():
-                cache[card.card_id] = card.get_leadtime()
-            leadtime = cache[card.card_id]
-            if leadtime is not None and leadtime>=0:
-                i += 1
-                percentil_leadtime.append(leadtime)
-                leadtime_graph+="[{v:%s, f:'%s days'}, {v:%s, f:'%s...'}]," % (i, 
-                        leadtime ,leadtime, card.name[:60].replace("'", ""))
-        leadtime_graph+="]"
-        return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
-    return []
+        try:
+            graph = board.graphdata_set.get(graph="Leadtime").data
+            graph = eval(graph)
+        except Exception as e:
+            graph = []
+ 
+    return graph
 
 
 @register.simple_tag

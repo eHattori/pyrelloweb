@@ -3,6 +3,7 @@ from pyrellowebapp import models
 import datetime
 import json
 import requests
+import numpy
 
 class Command(BaseCommand):
     local_list_names = {}
@@ -17,6 +18,33 @@ class Command(BaseCommand):
             default="",
             help='Import the board with this id',
         )
+
+
+
+    def save_leadtime(self, board):
+        leadtime_graph = None
+        leadtime_graph = "["
+        i = 0
+        percentil_leadtime = []
+        for card in board.card_set.all():
+            leadtime = card.get_leadtime()
+            if leadtime is not None and leadtime>=0:
+                i += 1
+                percentil_leadtime.append(leadtime)
+                leadtime_graph+="[{v:%s, f:'%s days'}, {v:%s, f:'%s...'}]," % (i,
+                        leadtime ,leadtime, card.name[:60].replace("'", ""))
+        leadtime_graph += "]"
+        leadtime_data = [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
+
+        try:
+            graphdata = board.graphdata_set.get(graph="Leadtime")
+        except Exception as e:
+            graphdata = models.GraphData()
+            graphdata.board = board
+        graphdata.graph = "Leadtime"
+        graphdata.data = leadtime_data
+        graphdata.save()
+
 
     def save_cfd_data(self, board):
          number_of_days = 90
@@ -95,8 +123,10 @@ class Command(BaseCommand):
 
         for board in boards:
             try:
+                print("Leadtime - %s" % board.name)
+                self.save_leadtime(board)
                 print("CFD - %s" % board.name)
                 self.save_cfd_data(board)
             except Exception as e:
-                print("CFD - %s Error: %s" % (board.name, e))
-        exit("Done")
+                print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
+        print("Done")
