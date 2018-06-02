@@ -20,6 +20,21 @@ class Command(BaseCommand):
         )
 
 
+    def save_histogram(self, board):
+        histogram = [['card', 'leadtime']]
+        for card in board.card_set.all():
+            leadtime =card.get_leadtime()
+            if leadtime is not None and leadtime>=0:
+                histogram.append([card.name[:60].replace("'", ""), leadtime])
+        try:
+            graphdata = board.graphdata_set.get(graph="Histogram")
+        except Exception as e:
+            graphdata = models.GraphData()
+            graphdata.board = board
+        graphdata.graph = "Histogram"
+        graphdata.data = json.dumps(histogram)
+        graphdata.save()
+
 
     def save_leadtime(self, board):
         leadtime_graph = None
@@ -164,6 +179,8 @@ class Command(BaseCommand):
 
         for board in boards:
             try:
+                print("Histogram - %s" % board.name)
+                self.save_histogram(board)
                 print("Throughput - %s" % board.name)
                 self.save_throughput(board)
                 print("Leadtime - %s" % board.name)

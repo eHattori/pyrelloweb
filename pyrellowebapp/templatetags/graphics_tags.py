@@ -19,17 +19,15 @@ def menu():
 @register.simple_tag
 def histogram(request):
     board_id = request.GET.get('board_id', None)
-    histogram = None
+    graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        histogram = []
-        for card in board.card_set.all():
-            if card.card_id not in cache.keys():
-                cache[card.card_id]=card.get_leadtime()
-            leadtime = cache[card.card_id]
-            if leadtime is not None and leadtime>=0:
-                histogram.append(['card', leadtime])
-    return histogram
+        try:
+            graph = board.graphdata_set.get(graph="Histogram").data
+            graph = json.loads(graph)
+        except Exception as e:
+            pass 
+    return graph
 
 
 @register.simple_tag
