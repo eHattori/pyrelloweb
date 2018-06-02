@@ -7,6 +7,17 @@ import requests
 class Command(BaseCommand):
     local_list_names = {}
 
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+        '--board',
+            action='store',
+            dest='board',
+            type=str,
+            default="",
+            help='Import the board with this id',
+        )
+
     def save_cfd_data(self, board):
          number_of_days = 90
          date_starter = datetime.date.today() - datetime.timedelta(days=number_of_days)
@@ -76,7 +87,11 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        boards = models.Board.objects.all()
+
+        if options['board'] != "":
+            boards = models.Board.objects.filter(board_id=options['board'])
+        else:
+            boards = models.Board.objects.all()
 
         for board in boards:
             try:
