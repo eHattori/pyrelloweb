@@ -47,7 +47,7 @@ def leadtime(request):
     leadtime_graph = None
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        leadtime_graph = []
+        leadtime_graph = "["
         i = 0
         percentil_leadtime = []
         for card in board.card_set.all():
@@ -57,8 +57,9 @@ def leadtime(request):
             if leadtime is not None and leadtime>=0:
                 i += 1
                 percentil_leadtime.append(leadtime)
-                leadtime_graph.append([i, leadtime])
-
+                leadtime_graph+="[{v:%s, f:'%s days'}, {v:%s, f:'%s...'}]," % (i, 
+                        leadtime ,leadtime, card.name[:60].replace("'", ""))
+        leadtime_graph+="]"
         return [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
     return []
 
