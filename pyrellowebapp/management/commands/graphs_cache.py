@@ -68,14 +68,15 @@ class Command(BaseCommand):
         line = ""
         sorted_data = []
         for week_index in data.keys():
-
             week, year = week_index.split("-")
+
             if len(week)==1:
-
-
                 week="0%s" % week
+
             sorted_data.append(float("%s.%s"% (year, week)))
         sorted_data.sort()
+        total_value = 0
+        total_throughput = 0
         for week_index in sorted_data:
             year, week = str(week_index).split(".")
             if len(week)==1:
@@ -84,14 +85,20 @@ class Command(BaseCommand):
             week_values=""
             for type in models.CARD_TYPE_CHOICES:
                 week_values += "%s," % data[week_index][type[0]]
+                total_throughput += data[week_index][type[0]]
+                if type[0] == "value":
+                    total_value += data[week_index][type[0]]
             line += "[ '%s', %s],"  % ( week_index, week_values)
         throughput_graph = "[%s]" % line
+        valueload = (total_value*100)/total_throughput
         result = { 
                 'labels': labels,
                 'data': throughput_graph,
-                'median': round(median,2),
-                'mean':  "%.2f" % round(mean,2)
+                'median': "%.2f" % round(median,2),
+                'mean':  "%.2f" % round(mean,2),
+                'valueload': "%.2f" % valueload
                 }
+        print(result)
         try:
             graphdata = board.graphdata_set.get(graph="Throughput")
         except Exception as e:
