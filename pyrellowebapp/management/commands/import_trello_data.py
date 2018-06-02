@@ -7,6 +7,17 @@ import requests
 class Command(BaseCommand):
     local_list_names = {}
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+        '--board',
+            action='store',
+            dest='board',
+            type=str,
+            default="",
+            help='Import the board with this id',
+        )
+
+
     def get_all_board_columns(self, board_id, querystring):
         print("Saving columns...")
         querystring["cards"]="none"
@@ -166,10 +177,12 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        boards = models.Board.objects.all()
-
+        if options['board'] != "":
+            boards = models.Board.objects.filter(board_id=options['board'])
+        else:
+            boards = models.Board.objects.all()
         for board in boards:
-
+    
             querystring = {
                 "key": board.trello_user_key,
                 "token": board.trello_user_token
