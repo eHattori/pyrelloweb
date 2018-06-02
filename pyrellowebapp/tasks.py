@@ -5,3 +5,10 @@ from celery import shared_task
 def import_trello_data():
     from django.core.management import call_command
     call_command('import_trello_data')
+
+@shared_task
+def graphs_cache():
+    from django.core.management import call_command
+    call_command('graphs_cache')
+
+

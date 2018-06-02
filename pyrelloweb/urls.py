@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('import/', views.import_cmd, name="import_cmd"),
+    path('graph/', views.graph_cmd, name="graph_cmd"),
     path('login/', auth_views.login, name='login'),
     path('ATriggerVerify.txt', views.trigger, name="trigger"),
 ]
