@@ -29,6 +29,11 @@ DEBUG = True
 ALLOWED_HOSTS = []
 LOGIN_REDIRECT_URL = 'home'
 
+#Celery Config
+
+BROKER_URL = 'amqp://%s@baboon.rmq.cloudamqp.com/mnlarpot' % os.environ['RABBITMQ']
+
+
 # Application definition
 
 INSTALLED_APPS = [

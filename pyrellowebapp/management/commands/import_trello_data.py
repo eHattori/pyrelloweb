@@ -68,7 +68,6 @@ class Command(BaseCommand):
                 label_obj = models.Label.objects.get(label_id=label["id"])
                 labels.append(label_obj)
             except Exception as e:
-                print(e)
                 pass
         try:
             card_obj.board = board
@@ -77,7 +76,7 @@ class Command(BaseCommand):
             card_obj.labels.set(labels)
 
             card_obj.save()
-        except Exeption as e:
+        except Exception as e:
             print(e)
             pass
         for transaction in card_dict["transactions"]:
@@ -85,7 +84,6 @@ class Command(BaseCommand):
                 transaction.card = card_obj
                 transaction.save()
             except Exception as e:
-                print(e)
                 pass
 
     def get_list_name(self, list_id):
@@ -231,4 +229,4 @@ class Command(BaseCommand):
                 self.save_board_cards(card_dict, board)
             print("Board %s exported" % board_name)
 
-        exit("Done")
+        print("Done")
