@@ -98,7 +98,6 @@ class Command(BaseCommand):
                 'mean':  "%.2f" % round(mean,2),
                 'valueload': "%.2f" % valueload
                 }
-        print(result)
         try:
             graphdata = board.graphdata_set.get(graph="Throughput")
         except Exception as e:
@@ -119,7 +118,6 @@ class Command(BaseCommand):
          while date_starter <= datetime.date.today():
              cfd_hash[date_starter]= {}
              for column in columns:
- 
                  transactions = column.transaction_set.all()
                  if column.leadtime_period=="End":
                      column = EndColumn
@@ -127,12 +125,9 @@ class Command(BaseCommand):
                      cfd_hash[date_starter][column]=[]
  
                  for transaction in transactions:
-                     end_date = transaction.end_date
-                     if (transaction.card.id in cards_done and
-                             column.name=="Done") or (date_starter >=
+                     if (date_starter >=
                                      transaction.date.date() and date_starter <
-                                     end_date.date() and
-                                     transaction.date.date()!=end_date.date()):
+                                     transaction.end_date.date()):
                          cfd_hash[date_starter][column].append(transaction.card.id)
  
                          if column.name=="Done":
