@@ -23,7 +23,7 @@ class Board(models.Model):
     board_type = models.CharField(
             choices = BOARD_TYPE_CHOICES,
             max_length=30,
-            default = "none")
+            default = "trello")
  
     jira_server_url = models.CharField(max_length=250, null=True, blank=True)
     
