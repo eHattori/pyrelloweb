@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='board',
             name='board_type',
-            field=models.CharField(choices=[('trello', 'Trello'), ('jira', 'Jira')], default='none', max_length=30),
+            field=models.CharField(choices=[('trello', 'Trello'), ('jira',
+                'Jira')], default='trello', max_length=30),
         ),
         migrations.AddField(
             model_name='board',
