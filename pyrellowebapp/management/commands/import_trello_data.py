@@ -149,18 +149,6 @@ class Command(BaseCommand):
         return action_dict
 
 
-    def get_leadtime_date(self, selected_columns, lists, card_dict):
-        leadtime_date = ""
-        for selected_column in selected_columns:
-            list_id = ""
-            for board_list in lists:
-                if board_list["name"].upper() == selected_column.upper():
-                    list_id = board_list["id"]
-            if list_id in card_dict and card_dict[list_id] != "":
-                leadtime_date = card_dict[list_id]
-        return leadtime_date
-
-
     def get_card_list(self, board_id, querystring):
         card_params = "actions=copyCard,createCard,updateCard"
         card_url = "https://api.trello.com/1/boards/%s/cards?%s" % (

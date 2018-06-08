@@ -10,12 +10,22 @@ CARD_TYPE_CHOICES = (
         ("ops","Ops"),
         ("others","Outros")
         )
+BOARD_TYPE_CHOICES = (
+        ("trello", "Trello"),
+        ("jira", "Jira"),
+        )
 
 class Board(models.Model):
     name = models.CharField(max_length=250)
     board_id = models.CharField(max_length=250)
     trello_user_key = models.CharField(max_length=250)
     trello_user_token = models.CharField(max_length=250)
+    board_type = models.CharField(
+            choices = BOARD_TYPE_CHOICES,
+            max_length=30,
+            default = "trello")
+ 
+    jira_server_url = models.CharField(max_length=250, null=True, blank=True)
     
     def get_throughput(self):
         cards = []
