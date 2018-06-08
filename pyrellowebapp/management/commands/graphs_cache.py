@@ -76,6 +76,7 @@ class Command(BaseCommand):
             sorted_data.append(float("%s.%s"% (year, week)))
         sorted_data.sort()
         total_value = 0
+        total_defect = 0
         total_throughput = 0
         for week_index in sorted_data:
             year, week = str(week_index).split(".")
@@ -88,15 +89,20 @@ class Command(BaseCommand):
                 total_throughput += data[week_index][type[0]]
                 if type[0] == "value":
                     total_value += data[week_index][type[0]]
+                elif type[0] == "bug":
+                    total_defect += data[week_index][type[0]]
+
             line += "[ '%s', %s],"  % ( week_index, week_values)
         throughput_graph = "[%s]" % line
         valueload = (total_value*100)/total_throughput
+        defectload = (total_defect*100)/total_throughput
         result = { 
                 'labels': labels,
                 'data': throughput_graph,
                 'median': "%.2f" % round(median,2),
                 'mean':  "%.2f" % round(mean,2),
-                'valueload': "%.2f" % valueload
+                'valueload': "%.2f" % valueload,
+                'defectload': "%.2f" % defectload,
                 }
         try:
             graphdata = board.graphdata_set.get(graph="Throughput")
