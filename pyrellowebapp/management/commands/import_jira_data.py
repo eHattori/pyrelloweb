@@ -90,7 +90,6 @@ class Command(BaseCommand):
                         label_obj = models.Label.objects.get(label_id=label)
                     except:
                         label_obj = models.Label()
-                    print("saving %s" % label)
                     label_obj.label_id = label
                     label_obj.name = label
                     label_obj.board = board
@@ -113,6 +112,7 @@ class Command(BaseCommand):
                             except Exception as e:
                                 print(e)
                                 column = models.Column()
+                        
                             column.column_id = item.to
                             column.name = item.toString
                             column.board_id = board.id
@@ -124,7 +124,7 @@ class Command(BaseCommand):
                                     column = column)
                             )
                 board.column_set.set(card_dict['columns'])
-
+                board.save()
                 self.save_board_cards(card_dict, board)
             print("Board %s exported" % board.name)
 
