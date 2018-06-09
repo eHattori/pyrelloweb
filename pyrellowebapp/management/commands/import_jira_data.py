@@ -74,7 +74,7 @@ class Command(BaseCommand):
 
                 issue = jira.issue(key, expand='changelog')
                 try:
-                    label_obj = models.Label.objects.get(name=issue.fields.issuetype.name)
+                    label_obj = models.Label.objects.get(label_id=issue.fields.issuetype.name)
                 except:
                     label_obj = models.Label()
                 label_obj.name = issue.fields.issuetype.name
