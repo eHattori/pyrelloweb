@@ -123,9 +123,11 @@ class Command(BaseCommand):
                                     date = history.created, 
                                     column = column)
                             )
-                board.column_set.set(card_dict['columns'])
-                board.save()
+
                 self.save_board_cards(card_dict, board)
+            board.column_set.set(card_dict['columns'])
+            board.save()
+
             print("Board %s exported" % board.name)
 
         print("Done")
