@@ -168,7 +168,7 @@ class Command(BaseCommand):
         if options['board'] != "":
             boards = models.Board.objects.filter(board_id=options['board'])
         else:
-            boards = models.Board.objects.all()
+            boards = models.Board.objects.filter(board_type="trello")
         for board in boards:
     
             querystring = {
