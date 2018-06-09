@@ -156,7 +156,7 @@ LABEL_SERVICE_CLASS = (
 
 class Label(models.Model):
     name = models.CharField(max_length=250)
-    label_id = models.CharField(max_length=250, unique=True)
+    label_id = models.CharField(max_length=250)
     color = models.CharField(max_length=200, null=True, blank=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     service_class = models.CharField(
@@ -179,7 +179,7 @@ LEADTIME_CHOICES = (
 
 class Column(models.Model):
     name = models.CharField(max_length=250)
-    column_id = models.CharField(max_length=250, unique=True)
+    column_id = models.CharField(max_length=250)
     active = models.BooleanField(default=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE) 
     board_position = models.FloatField(default=0)
