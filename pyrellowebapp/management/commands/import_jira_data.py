@@ -87,14 +87,15 @@ class Command(BaseCommand):
                 
                 for label in issue.fields.labels:
                     try:
-                        label_obj = models.Label.objects.get(label_name=label.name)
+                        label_obj = models.Label.objects.get(label_id=label)
                     except:
                         label_obj = models.Label()
-                    label_obj.label_id = label.name
-                    label_obj.name = label.name
+                    print("saving %s" % label)
+                    label_obj.label_id = label
+                    label_obj.name = label
                     label_obj.board = board
                     label_obj.save()
-                    label_obj_list.append(label_obj)
+                    labels.append(label_obj)
                 card_dict = {
                     'card_id': issue.id,
                     "name": issue.key,
