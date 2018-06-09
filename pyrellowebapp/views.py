@@ -9,8 +9,12 @@ def home(request):
     else:
         return render(request, 'home.html')
 
-def import_cmd(request):
+def import_trello_cmd(request):
     tasks.import_trello_data.delay()
+    return HttpResponse("Command done")
+
+def import_jira_cmd(request):
+    tasks.import_jira_data.delay()
     return HttpResponse("Command done")
 
 def graph_cmd(request):
