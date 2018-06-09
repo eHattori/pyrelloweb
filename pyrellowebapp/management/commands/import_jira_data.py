@@ -74,11 +74,14 @@ class Command(BaseCommand):
 
                 issue = jira.issue(key, expand='changelog')
                 try:
-                    label_obj = models.Label.objects.get(label_id=issue.fields.issuetype.name)
-                except:
+                    label_obj = models.Label.objects.get(
+                            name=issue.fields.issuetype.name,
+                            board = board)
+                except Exception as e:
+                    print(e)
                     label_obj = models.Label()
+
                 label_obj.name = issue.fields.issuetype.name
-                label_obj.label_id = issue.fields.issuetype.name
                 label_obj.board = board
                 label_obj.save()
 
@@ -87,7 +90,10 @@ class Command(BaseCommand):
                 
                 for label in issue.fields.labels:
                     try:
-                        label_obj = models.Label.objects.get(label_id=label)
+                        label_obj = models.Label.objects.get(
+                                name=label,
+                                board = board
+                                )
                     except:
                         label_obj = models.Label()
                     label_obj.label_id = label
@@ -108,14 +114,17 @@ class Command(BaseCommand):
                     for item in history.items:
                         if item.field == 'status':
                             try:
-                                column =  models.Column.objects.get(column_id = item.to)
+                                column =  models.Column.objects.get(
+                                        column_id = item.to,
+                                        board = board
+                                        )
                             except Exception as e:
                                 print(e)
                                 column = models.Column()
                         
                             column.column_id = item.to
                             column.name = item.toString
-                            column.board_id = board.id
+                            column.board = board
                             column.save()
                             card_dict['columns'].append(column)
 
@@ -125,7 +134,7 @@ class Command(BaseCommand):
                             )
 
                 self.save_board_cards(card_dict, board)
-            board.column_set.set(card_dict['columns'])
+
             board.save()
 
             print("Board %s exported" % board.name)
