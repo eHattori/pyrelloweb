@@ -48,17 +48,18 @@ class Command(BaseCommand):
                 percentil_leadtime.append(leadtime)
                 leadtime_graph+="[{v:%s, f:'%s days'}, {v:%s, f:'%s...'}]," % (i,
                         leadtime ,leadtime, card.name[:60].replace("'", ""))
-        leadtime_graph += "]"
-        leadtime_data = [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
+        if len(percentil_leadtime)>0:
+            leadtime_graph += "]"
+            leadtime_data = [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
 
-        try:
-            graphdata = board.graphdata_set.get(graph="Leadtime")
-        except Exception as e:
-            graphdata = models.GraphData()
-            graphdata.board = board
-        graphdata.graph = "Leadtime"
-        graphdata.data = json.dumps(leadtime_data)
-        graphdata.save()
+            try:
+                graphdata = board.graphdata_set.get(graph="Leadtime")
+            except Exception as e:
+                graphdata = models.GraphData()
+                graphdata.board = board
+            graphdata.graph = "Leadtime"
+            graphdata.data = json.dumps(leadtime_data)
+            graphdata.save()
 
     def save_throughput(self, board):
         throughput_graph = []
@@ -189,12 +190,25 @@ class Command(BaseCommand):
             try:
                 print("Histogram - %s" % board.name)
                 self.save_histogram(board)
+            except Exception as e:
+                print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
+
+            try:
                 print("Throughput - %s" % board.name)
                 self.save_throughput(board)
+            except Exception as e:
+                print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
+
+            try:
                 print("Leadtime - %s" % board.name)
                 self.save_leadtime(board)
+            except Exception as e:
+                print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
+
+            try:
                 print("CFD - %s" % board.name)
                 self.save_cfd_data(board)
             except Exception as e:
                 print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
+
         print("Done")
