@@ -66,7 +66,7 @@ class Command(BaseCommand):
 
             jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
             issues = jira.search_issues('project='+ settings['BOARD_NAME'], startAt=0,
-                    maxResults=200, json_result=True)
+                    maxResults=1000, json_result=True)
 
             issues = issues['issues']
             issues = {issue['key']:issue for issue in issues}
