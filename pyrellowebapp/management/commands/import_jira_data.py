@@ -64,76 +64,80 @@ class Command(BaseCommand):
                     'BOARD_NAME': board.board_id
             }
 
-            jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
-            issues = jira.search_issues('project='+ settings['BOARD_NAME'], startAt=0,
-                    maxResults=1000, json_result=True)
+            issues = {}
+            jira = JIRA(options=settings.options, basic_auth = (settings.JIRA_USER, settings.JIRA_PASSWORD))
+            for i in range(0, 10000, 100):
+                jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
+                issues = jira.search_issues('project='+ settings['BOARD_NAME'],
+                        startAt=i,
+                        maxResults=i+100, json_result=True)
 
-            issues = issues['issues']
-            issues = {issue['key']:issue for issue in issues}
-            for key, issue in issues.items():  
+                issues = issues['issues']
+                issues = {issue['key']:issue for issue in issues}
+                for key, issue in issues.items():  
 
-                issue = jira.issue(key, expand='changelog')
-                try:
-                    label_obj = models.Label.objects.get(
-                            name=issue.fields.issuetype.name,
-                            board = board)
-                except Exception as e:
-                    print(e)
-                    label_obj = models.Label()
-
-                label_obj.name = issue.fields.issuetype.name
-                label_obj.board = board
-                label_obj.save()
-
-                labels = [label_obj]
-
-                
-                for label in issue.fields.labels:
+                    issue = jira.issue(key, expand='changelog')
                     try:
                         label_obj = models.Label.objects.get(
-                                name=label,
-                                board = board
-                                )
-                    except:
+                                name=issue.fields.issuetype.name,
+                                board = board)
+                    except Exception as e:
+                        print(e)
                         label_obj = models.Label()
-                    label_obj.label_id = label
-                    label_obj.name = label
+
+                    label_obj.name = issue.fields.issuetype.name
                     label_obj.board = board
                     label_obj.save()
-                    labels.append(label_obj)
-                card_dict = {
-                    'card_id': issue.id,
-                    "name": issue.key,
-                    "labels": labels,
-                    "transactions" : [],
-                    "columns": []
-                }
- 
-                
-                for history in issue.changelog.histories:
-                    for item in history.items:
-                        if item.field == 'status':
-                            try:
-                                column =  models.Column.objects.get(
-                                        column_id = item.to,
-                                        board = board
-                                        )
-                            except Exception as e:
-                                print(e)
-                                column = models.Column()
-                        
-                            column.column_id = item.to
-                            column.name = item.toString
-                            column.board = board
-                            column.save()
-                            card_dict['columns'].append(column)
 
-                            card_dict["transactions"].append( models.Transaction(
-                                    date = history.created, 
-                                    column = column)
-                            )
+                    labels = [label_obj]
 
-                self.save_board_cards(card_dict, board)
+                    
+                    for label in issue.fields.labels:
+                        try:
+                            label_obj = models.Label.objects.get(
+                                    name=label,
+                                    board = board
+                                    )
+                        except:
+                            label_obj = models.Label()
+                        label_obj.label_id = label
+                        label_obj.name = label
+                        label_obj.board = board
+                        label_obj.save()
+                        labels.append(label_obj)
+                    card_dict = {
+                        'card_id': issue.id,
+                        "name": issue.key,
+                        "labels": labels,
+                        "transactions" : [],
+                        "columns": []
+                    }
+     
+                    
+                    for history in issue.changelog.histories:
+                        for item in history.items:
+                            if item.field == 'status':
+                                try:
+                                    column =  models.Column.objects.get(
+                                            column_id = item.to,
+                                            board = board
+                                            )
+                                except Exception as e:
+                                    print(e)
+                                    column = models.Column()
+                            
+                                column.column_id = item.to
+                                column.name = item.toString
+                                column.board = board
+                                column.save()
+                                card_dict['columns'].append(column)
+
+                                card_dict["transactions"].append( models.Transaction(
+                                        date = history.created, 
+                                        column = column)
+                                )
+
+                    self.save_board_cards(card_dict, board)
 
             board.save()
 
