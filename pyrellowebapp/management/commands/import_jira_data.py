@@ -64,13 +64,14 @@ class Command(BaseCommand):
                     'BOARD_NAME': board.board_id
             }
 
-            issues = {}
-            jira = JIRA(options=settings.options, basic_auth = (settings.JIRA_USER, settings.JIRA_PASSWORD))
             for i in range(0, 10000, 100):
                 jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
                 issues = jira.search_issues('project='+ settings['BOARD_NAME'],
                         startAt=i,
                         maxResults=i+100, json_result=True)
+
+                if len(issues)==0:
+                    i=10000
 
                 issues = issues['issues']
                 issues = {issue['key']:issue for issue in issues}
