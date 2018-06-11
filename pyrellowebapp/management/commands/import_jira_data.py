@@ -71,7 +71,7 @@ class Command(BaseCommand):
                         maxResults=i+100, json_result=True)
 
                 if len(issues)==0:
-                    i=10000
+                    break
 
                 issues = issues['issues']
                 issues = {issue['key']:issue for issue in issues}
