@@ -56,21 +56,21 @@ class Command(BaseCommand):
         else:
             boards = models.Board.objects.filter(board_type="jira")
         for board in boards:
-            columns = {}
             settings ={
                     'options':{'server': board.jira_server_url},
                     'JIRA_USER': board.trello_user_key,
                     'JIRA_PASSWORD': board.trello_user_token,
                     'BOARD_NAME': board.board_id
             }
-
-            for i in range(0, 10000, 100):
+            print(board.name)
+            for i in range(0, 10000, 50):
+                print("Range: %s - %s" % (i, i+50))
                 jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
                 issues = jira.search_issues('project='+ settings['BOARD_NAME'],
                         startAt=i,
-                        maxResults=i+100, json_result=True)
+                        maxResults=i+50, json_result=True)
 
-                if len(issues)==0:
+                if len(issues["issues"])==0:
                     break
 
                 issues = issues['issues']
