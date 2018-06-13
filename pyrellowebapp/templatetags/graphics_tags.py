@@ -1,4 +1,5 @@
 from django import template
+import datetime
 from pyrellowebapp.models import Board
 from pyrellowebapp import models
 import json
@@ -70,11 +71,28 @@ def throughput(request):
 @register.simple_tag
 def cfd(request):
     board_id = request.GET.get('board_id', None)
+    number_of_days = int(request.GET.get('number_of_days', 60))
     cfd_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
-            cfd_graph = board.graphdata_set.get(graph="CFD").data
+            start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
+            end_date = datetime.date.today()
+
+            cfd_graph_data = board.chartcfd.chartcfddata_set.filter(
+                    day__range=(start_date, end_date))
+            chart_columns = json.loads(board.chartcfd.chart_columns)
+            cfd_graph.append(chart_columns)
+            i=0
+            for data in cfd_graph_data:
+                done_index = chart_columns.index('Done')
+                data = json.loads(data.data)
+                if i == 0:
+                    done_start = data[done_index] 
+                    i += 1
+                data[done_index]-=done_start
+                cfd_graph.append(data)
+
         except Exception as e:
             print(e)
             cfd_graph = []

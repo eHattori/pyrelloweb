@@ -4,6 +4,7 @@ import datetime
 import json
 import requests
 import numpy
+from django.core.exceptions import ObjectDoesNotExist
 
 class Command(BaseCommand):
     local_list_names = {}
@@ -116,7 +117,7 @@ class Command(BaseCommand):
 
 
     def save_cfd_data(self, board):
-         number_of_days = 90
+         number_of_days = 120
          date_starter = datetime.date.today() - datetime.timedelta(days=number_of_days)
          columns = board.column_set.all().order_by('-board_position')
          cfd_hash = {}
@@ -160,24 +161,32 @@ class Command(BaseCommand):
                          cfd_header.append(column.name)
                          cfd_list[0] = cfd_header
                      cfd_day_list.append(total)
- 
+              
              cfd_list.append(cfd_day_list)
              if len(cfd_list)==2:
                  done_index = cfd_list[0].index('Done')
                  done_start=cfd_day_list[done_index]
                  cfd_list[1][done_index]=0
- 
          try:
-             graphdata = board.graphdata_set.get(graph="CFD")
-
-         except Exception as e:
-             print(e)
-             graphdata = models.GraphData()
-             graphdata.board = board
-         graphdata.graph = "CFD"
-         graphdata.data = cfd_list
-         graphdata.save()
-
+             cfdObj = board.chartcfd
+         except ObjectDoesNotExist:
+             cfdObj = models.ChartCFD()
+             cfdObj.board = board
+         cfdObj.chart_columns = json.dumps(cfd_header)
+         cfdObj.save() 
+         header = cfd_list.pop(0)
+         cfd_day_list = []
+         cfdObj.chartcfddata_set.all().delete()
+         for data in cfd_list:
+            cfd_day = models.ChartCFDData()
+            cfd_day.day = data[0]
+            cfd_day.data = json.dumps(data)
+            cfd_day_list.append(cfd_day)
+            cfd_day.chartcfd = cfdObj
+            cfd_day.save()
+            print (data)
+         cfdObj.save()
+ 
 
     def handle(self, *args, **options):
 
