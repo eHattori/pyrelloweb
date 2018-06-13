@@ -11,7 +11,9 @@
           <form method="get"><input type="hidden" name="board_id"
             value="{{page.board_id}}"/> <text class="page-title">
             {{page.title }}</h3>
+          {% if page.number_of_days %}
           <h6>Últimos <input type="text" name="number_of_days" size="3" value="{{page.number_of_days}}"/> dias</h6>
+          {% endif %}
           </form>
         </div>
     </div>
