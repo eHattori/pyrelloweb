@@ -32,11 +32,17 @@ def histogram(request):
 
 
 @register.simple_tag
-def page_title(request):
+def page(request):
     board_id = request.GET.get('board_id', None)
+    number_of_days = request.GET.get('number_of_days', None)
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        return board.name
+        result = {
+                'board_id': board.board_id,
+                'title' : board.name, 
+                'number_of_days': number_of_days}
+        return result
+
     return "Início"
  
  
