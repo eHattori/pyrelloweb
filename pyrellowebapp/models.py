@@ -272,6 +272,7 @@ GRAPH_CHOICES = (
         ("ThroughputMedian", "Mediana Throughput"),
 
 )
+
 class GraphData(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     graph = models.CharField(
@@ -280,3 +281,13 @@ class GraphData(models.Model):
     )
     data = models.TextField()
 
+
+class ChartCFD(models.Model):
+    board = models.OneToOneField(Board, on_delete=models.CASCADE)
+    chart_columns = models.CharField(max_length=250)
+
+
+class ChartCFDData(models.Model):
+    data = models.TextField()
+    day = models.DateField()
+    chartcfd = models.ForeignKey(ChartCFD, on_delete = models.CASCADE)
