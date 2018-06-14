@@ -24,7 +24,7 @@ PROJECT_PATH = os.path.join(os.path.abspath(os.path.split(__file__)[0]),)
 SECRET_KEY = '1syros2(7x9@rk!b62s6k+3bhp&o@&ghp2v42v14jzv=rk=cfq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['DEBUG']
+DEBUG = True
 
 ALLOWED_HOSTS = []
 LOGIN_REDIRECT_URL = 'home'
@@ -83,16 +83,29 @@ WSGI_APPLICATION = 'pyrelloweb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'pyrello',
+#         'USER': 'pyrello',
+#         'PASSWORD': 'megaconfere',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pyrelloweb',
-        'USER': 'megaconfere',
-        'PASSWORD': 'megaconfere',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('MYSQL_DATABASE_NAME'),
+        'USER': os.environ.get('MYSQL_USER'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+        'HOST': os.environ.get('MYSQL_HOST'),
+        'PORT': os.environ.get('MYSQL_PORT'),
+        'CONN_MAX_AGE': 600,
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
