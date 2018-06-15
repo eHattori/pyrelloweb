@@ -4,6 +4,7 @@ from pyrellowebapp.models import Board
 from pyrellowebapp import models
 import json
 from django.db.models import Q
+import numpy
 
 register = template.Library()
 cache={}
@@ -50,11 +51,21 @@ def page(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
+    number_of_days = int(request.GET.get('number_of_days', 60))
     if board_id:
         board = Board.objects.get(board_id=board_id)
+        start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
+        end_date = datetime.date.today()
         try:
-            leadtime = models.ChartLeadtime.objects.filter(card__board=board).order_by('end_date')
-            return leadtime
+            leadtime = models.ChartLeadtime.objects.filter(card__board=board,
+                    end_date__range=(start_date, end_date)).order_by('end_date')
+            total_items = []
+            for item in leadtime:
+                total_items.append(item.leadtime)
+            percentile = "%.2f" % round(numpy.percentile(total_items, 90),2)
+            result = {'percentile' : percentile,
+                    'cards': leadtime}
+            return result
         except Exception as e:
             print("error leadtime  %s" % e)
             pass 
