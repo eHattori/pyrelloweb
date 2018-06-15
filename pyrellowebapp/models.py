@@ -172,9 +172,9 @@ class Label(models.Model):
  
 
 LEADTIME_CHOICES = (
-        ("Start", "Pode representar o início do Leadtime"),
-        ("End", "Pode representar o fim do Leadtime"),
-        ("None", "Não considerar nem como início nem fim")
+        ("Start", "Início do Leadtime"),
+        ("End", "Fim do Leadtime"),
+        ("None", "Indiferente")
 )
 
 class Column(models.Model):
@@ -291,3 +291,11 @@ class ChartCFDData(models.Model):
     data = models.TextField()
     day = models.DateField()
     chartcfd = models.ForeignKey(ChartCFD, on_delete = models.CASCADE)
+
+
+class ChartThroughput(models.Model):
+    week_label = models.CharField(max_length=12)
+    week = models.IntegerField()
+    year = models.IntegerField()
+    data = models.TextField()
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
