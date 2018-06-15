@@ -27,7 +27,7 @@
         <div class="card card-single-value mb-3">
           <div class="card-header">90 Percentil Leadtime</div>
           <div class="card-body">
-            <text class="card-title">{{ leadtime_items.1 }}</text>
+            <text class="card-title">{{ leadtime_items.percentile }}</text>
           </div>
         </div>
       </div>
@@ -166,20 +166,15 @@
                     google.charts.setOnLoadCallback(drawBasic);
 
                     function drawBasic() {
-
                           var data = new google.visualization.DataTable();
                           data.addColumn('number', 'X');
                           data.addColumn('number', 'Card');
-
-
                               var list_data = [
-                                  {% for item in leadtime_items %}
+                                  {% for item in leadtime_items.cards %}
                                 [{v:{{ forloop.counter0 }}, f:'{{item.leadtime}} days'},  {v:{{item.leadtime}}, f:'{{item.card.name}}'}],
                                   {% endfor %}
                                 ]
-
                           data.addRows(list_data);
-
                           var options = {
                             hAxis: {
                               title: 'Cards'
