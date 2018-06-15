@@ -3,6 +3,7 @@ import datetime
 from pyrellowebapp.models import Board
 from pyrellowebapp import models
 import json
+from django.db.models import Q
 
 register = template.Library()
 cache={}
@@ -63,15 +64,32 @@ def leadtime(request):
 @register.simple_tag
 def throughput(request):
     board_id = request.GET.get('board_id', None)
-    graph = {}
+    number_of_days = int(request.GET.get('number_of_days', 60))
+
+    chart = []
+    result = {'labels': models.CARD_TYPE_CHOICES, 'mean': '-', 'median': '-',
+            'defectload': '-'}
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
-            graph = board.graphdata_set.get(graph="Throughput").data
-            graph = json.loads(graph)
+            start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
+            end_date = datetime.date.today()
+            start_week = start_date.isocalendar()[1] 
+            start_year = start_date.isocalendar()[0]
+            end_week =  end_date.isocalendar()[1]
+            end_year = end_date.isocalendar()[0]
+            if start_year != end_year:
+                filter = (Q(year=end_year, week__lte=end_week)
+                        | Q(year=start_year, week__gte=start_week))
+            else:
+                filter = Q(year=start_year, week__range=(start_week, end_week))
+            tp_list = board.chartthroughput_set.filter(filter)
+            for tp_obj in tp_list:
+                chart.append(json.loads(tp_obj.data))
+            result['data'] = chart
         except Exception as e:
-            pass 
-    return graph
+            print(e) 
+    return result
 
 
 @register.simple_tag

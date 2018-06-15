@@ -67,7 +67,6 @@ class Command(BaseCommand):
         throughput_data = board.get_throughput()
 
         labels, data, median, mean = throughput_data.values()
-        line = ""
         sorted_data = []
         for week_index in data.keys():
             week, year = week_index.split("-")
@@ -77,43 +76,30 @@ class Command(BaseCommand):
 
             sorted_data.append(float("%s.%s"% (year, week)))
         sorted_data.sort()
-        total_value = 0
-        total_defect = 0
-        total_throughput = 0
         for week_index in sorted_data:
             year, week = str(week_index).split(".")
             if len(week)==1:
                 week="%s0" % week
             week_index="%s-%s" % (int(week), year)
+
+            line=[week_index]
+            try:
+                tp_obj = models.ChartThroughput.objects.get(
+                        week_label=week_index,
+                        board=board)
+            except Exception as e:
+                tp_obj = models.ChartThroughput()
+            tp_obj.week_label=week_index
+            tp_obj.week = week
+            tp_obj.year = year
+            tp_obj.board = board
+
             week_values=""
             for type in models.CARD_TYPE_CHOICES:
-                week_values += "%s," % data[week_index][type[0]]
-                total_throughput += data[week_index][type[0]]
-                if type[0] == "value":
-                    total_value += data[week_index][type[0]]
-                elif type[0] == "bug":
-                    total_defect += data[week_index][type[0]]
+                line.append(data[week_index][type[0]])
 
-            line += "[ '%s', %s],"  % ( week_index, week_values)
-        throughput_graph = "[%s]" % line
-        valueload = (total_value*100)/total_throughput
-        defectload = (total_defect*100)/total_throughput
-        result = { 
-                'labels': labels,
-                'data': throughput_graph,
-                'median': "%.2f" % round(median,2),
-                'mean':  "%.2f" % round(mean,2),
-                'valueload': "%.2f" % valueload,
-                'defectload': "%.2f" % defectload,
-                }
-        try:
-            graphdata = board.graphdata_set.get(graph="Throughput")
-        except Exception as e:
-            graphdata = models.GraphData()
-            graphdata.board = board
-        graphdata.graph = "Throughput"
-        graphdata.data = json.dumps(result)
-        graphdata.save()
+            tp_obj.data = json.dumps(line)
+            tp_obj.save()
 
 
     def save_cfd_data(self, board):
@@ -184,7 +170,6 @@ class Command(BaseCommand):
             cfd_day_list.append(cfd_day)
             cfd_day.chartcfd = cfdObj
             cfd_day.save()
-            print (data)
          cfdObj.save()
  
 
