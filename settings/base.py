@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'pyrelloweb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'testedb',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pyrelloweb',
+        'USER': 'megaconfere',
+        'PASSWORD': 'megaconfere',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
