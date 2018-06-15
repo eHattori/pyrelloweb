@@ -158,7 +158,7 @@
                     <text class="card-title">Leadtime</text>
                 </div>
                 <div class="card-body">
-                    <div id="leadtime"></div>
+                  <div id="leadtime"> </div>
                 </div>
 
                 <script type="text/javascript">
@@ -172,9 +172,11 @@
                           data.addColumn('number', 'Card');
 
 
-                            {% autoescape off %}
-                              var list_data = {{leadtime_items.0}};
-                            {% endautoescape %}
+                              var list_data = [
+                                  {% for item in leadtime_items %}
+                                [{v:{{ forloop.counter0 }}, f:'{{item.leadtime}} days'},  {v:{{item.leadtime}}, f:'{{item.card.name}}'}],
+                                  {% endfor %}
+                                ]
 
                           data.addRows(list_data);
 

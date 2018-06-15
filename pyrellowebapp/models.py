@@ -299,3 +299,9 @@ class ChartThroughput(models.Model):
     year = models.IntegerField()
     data = models.TextField()
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+
+
+class ChartLeadtime(models.Model):
+    end_date = models.DateField()
+    leadtime = models.IntegerField()
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)

@@ -50,15 +50,15 @@ def page(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
-    graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
-            graph = board.graphdata_set.get(graph="Leadtime").data
-            graph = json.loads(graph)
+            leadtime = models.ChartLeadtime.objects.filter(card__board=board).order_by('end_date')
+            return leadtime
         except Exception as e:
+            print("error leadtime  %s" % e)
             pass 
-    return graph
+    return None
 
 
 @register.simple_tag
