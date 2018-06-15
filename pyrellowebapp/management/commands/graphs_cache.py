@@ -38,29 +38,18 @@ class Command(BaseCommand):
 
 
     def save_leadtime(self, board):
-        leadtime_graph = None
-        leadtime_graph = "["
-        i = 0
-        percentil_leadtime = []
         for card in board.card_set.all():
             leadtime = card.get_leadtime()
             if leadtime is not None and leadtime>=0:
-                i += 1
-                percentil_leadtime.append(leadtime)
-                leadtime_graph+="[{v:%s, f:'%s days'}, {v:%s, f:'%s...'}]," % (i,
-                        leadtime ,leadtime, card.name[:60].replace("'", ""))
-        if len(percentil_leadtime)>0:
-            leadtime_graph += "]"
-            leadtime_data = [leadtime_graph, "%.2f" % round(numpy.percentile(percentil_leadtime, 90),2)]
+                try:
+                    leadtime_chart = models.ChartLeadtime.objects.get(card=card)
+                except models.ChartLeadtime.DoesNotExist:
+                    leadtime_chart = models.ChartLeadtime()
+                    leadtime_chart.card = card
+                leadtime_chart.end_date = card.end_date
+                leadtime_chart.leadtime = leadtime
+                leadtime_chart.save()
 
-            try:
-                graphdata = board.graphdata_set.get(graph="Leadtime")
-            except Exception as e:
-                graphdata = models.GraphData()
-                graphdata.board = board
-            graphdata.graph = "Leadtime"
-            graphdata.data = json.dumps(leadtime_data)
-            graphdata.save()
 
     def save_throughput(self, board):
         throughput_graph = []
