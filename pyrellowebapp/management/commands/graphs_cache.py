@@ -21,21 +21,6 @@ class Command(BaseCommand):
         )
 
 
-    def save_histogram(self, board):
-        histogram = [['card', 'leadtime']]
-        for card in board.card_set.all():
-            leadtime =card.get_leadtime()
-            if leadtime is not None and leadtime>=0:
-                histogram.append([card.name[:60].replace("'", ""), leadtime])
-        try:
-            graphdata = board.graphdata_set.get(graph="Histogram")
-        except Exception as e:
-            graphdata = models.GraphData()
-            graphdata.board = board
-        graphdata.graph = "Histogram"
-        graphdata.data = json.dumps(histogram)
-        graphdata.save()
-
 
     def save_leadtime(self, board):
         for card in board.card_set.all():
@@ -55,7 +40,7 @@ class Command(BaseCommand):
         throughput_graph = []
         throughput_data = board.get_throughput()
 
-        labels, data, median, mean = throughput_data.values()
+        labels, data = throughput_data.values()
         sorted_data = []
         for week_index in data.keys():
             week, year = week_index.split("-")
@@ -170,12 +155,6 @@ class Command(BaseCommand):
             boards = models.Board.objects.all()
 
         for board in boards:
-            try:
-                print("Histogram - %s" % board.name)
-                self.save_histogram(board)
-            except Exception as e:
-                print("GRAPHS CACHE - %s Error: %s" % (board.name, e))
-
             try:
                 print("Throughput - %s" % board.name)
                 self.save_throughput(board)

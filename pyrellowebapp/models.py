@@ -30,7 +30,6 @@ class Board(models.Model):
     def get_throughput(self):
         cards = []
         data = {}
-        week_total = {}
         today_week = datetime.datetime.today().isocalendar()[1]
     
         for card in self.card_set.all():
@@ -39,14 +38,12 @@ class Board(models.Model):
                 week = "%s-%s" % (end_date.isocalendar()[1], end_date.isocalendar()[0])
                 if week not in data:
                     data[week] = {card.type : 1}
-                    week_total[week] = 1
 
                 else:
                     if card.type in data[week]:
                         data[week][card.type] += 1
                     else:
                         data[week][card.type] = 1
-                    week_total[week] += 1
         year_list = {}
 
         for week in data.keys():
@@ -71,13 +68,9 @@ class Board(models.Model):
                     
                 week+=1
 
-        tp_median = numpy.median(list(week_total.values()))
-        tp_mean = numpy.mean(list(week_total.values()))
         result = { 
                 'labels': CARD_TYPE_CHOICES,
                 'data': data,
-                'median': tp_median,
-                'mean': tp_mean
                 }
         return result
     

@@ -212,7 +212,13 @@
                     google.charts.load("current", {packages:["corechart"]});
                     google.charts.setOnLoadCallback(drawChart);
                     function drawChart() {
-                      var list_data = {% autoescape off %}{{histogram_items}};{% endautoescape %}
+                              var list_data = [
+                                ['card', 'leadtime'],
+                                  {% for item in leadtime_items.cards %}
+                                [ '{{item.card.name}}', {{item.leadtime}}],
+                                  {% endfor %}
+                                ];
+ 
                       var data = google.visualization.arrayToDataTable(list_data);
                     
                       var options = {
