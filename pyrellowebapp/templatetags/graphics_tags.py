@@ -10,6 +10,7 @@ register = template.Library()
 
 BUG_TYPE_INDEX = 2
 SATURDAY = 5
+DEFAULT_NUMBER_OF_DAYS = 60
 
 @register.simple_tag
 def menu():
@@ -23,16 +24,15 @@ def menu():
 @register.simple_tag
 def page(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = request.GET.get('number_of_days', None)
+    number_of_days = request.GET.get('number_of_days', DEFAULT_NUMBER_OF_DAYS)
+    result = {}
+    result['number_of_days'] = number_of_days
+    result['title'] = "Início"
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        result = {
-                'board_id': board.board_id,
-                'title' : board.name, 
-                'number_of_days': number_of_days}
-        return result
-
-    return "Início"
+        result['board_id'] = board.board_id
+        result['title'] = board.name
+    return result
  
  
 @register.simple_tag
@@ -53,7 +53,8 @@ def histogram(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days', 60))
+    number_of_days = int(request.GET.get('number_of_days',
+        DEFAULT_NUMBER_OF_DAYS))
     if board_id:
         board = Board.objects.get(board_id=board_id)
         start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
@@ -75,7 +76,8 @@ def leadtime(request):
 @register.simple_tag
 def throughput(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days', 60))
+    number_of_days = int(request.GET.get('number_of_days',
+        DEFAULT_NUMBER_OF_DAYS))
 
     chart = []
     result = {'labels': models.CARD_TYPE_CHOICES, 'mean': '-', 'median': '-',
@@ -130,7 +132,8 @@ def throughput(request):
 @register.simple_tag
 def cfd(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days', 60))
+    number_of_days = int(request.GET.get('number_of_days',
+        DEFAULT_NUMBER_OF_DAYS))
     cfd_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
