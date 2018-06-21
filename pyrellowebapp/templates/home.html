@@ -5,11 +5,16 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <div class="page-content-wrapper">
 <div class="main-container container-fluid">
-  {% page_title request as page_title_text %}
+  {% page request as page %}
     <div>
         <div>
-            <text class="page-title">
-            {{page_title_text }}</h3>
+          <form method="get"><input type="hidden" name="board_id"
+            value="{{page.board_id}}"/> <text class="page-title">
+            {{page.title }}</h3>
+          {% if page.board_id %}
+          <h6>Últimos <input type="text" name="number_of_days" size="3" value="{{page.number_of_days}}"/> dias</h6>
+          {% endif %}
+          </form>
         </div>
     </div>
 
@@ -22,7 +27,7 @@
         <div class="card card-single-value mb-3">
           <div class="card-header">90 Percentil Leadtime</div>
           <div class="card-body">
-            <text class="card-title">{{ leadtime_items.1 }}</text>
+            <text class="card-title">{{ leadtime_items.percentile }}</text>
           </div>
         </div>
       </div>
@@ -153,7 +158,7 @@
                     <text class="card-title">Leadtime</text>
                 </div>
                 <div class="card-body">
-                    <div id="leadtime"></div>
+                  <div id="leadtime"> </div>
                 </div>
 
                 <script type="text/javascript">
@@ -161,18 +166,15 @@
                     google.charts.setOnLoadCallback(drawBasic);
 
                     function drawBasic() {
-
                           var data = new google.visualization.DataTable();
                           data.addColumn('number', 'X');
                           data.addColumn('number', 'Card');
-
-
-                            {% autoescape off %}
-                              var list_data = {{leadtime_items.0}};
-                            {% endautoescape %}
-
+                              var list_data = [
+                                  {% for item in leadtime_items.cards %}
+                                [{v:{{ forloop.counter0 }}, f:'{{item.leadtime}} days'},  {v:{{item.leadtime}}, f:'{{item.card.name}}'}],
+                                  {% endfor %}
+                                ]
                           data.addRows(list_data);
-
                           var options = {
                             hAxis: {
                               title: 'Cards'
@@ -210,7 +212,13 @@
                     google.charts.load("current", {packages:["corechart"]});
                     google.charts.setOnLoadCallback(drawChart);
                     function drawChart() {
-                      var list_data = {% autoescape off %}{{histogram_items}};{% endautoescape %}
+                              var list_data = [
+                                ['card', 'leadtime'],
+                                  {% for item in leadtime_items.cards %}
+                                [ '{{item.card.name}}', {{item.leadtime}}],
+                                  {% endfor %}
+                                ];
+ 
                       var data = google.visualization.arrayToDataTable(list_data);
                     
                       var options = {

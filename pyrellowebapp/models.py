@@ -30,7 +30,6 @@ class Board(models.Model):
     def get_throughput(self):
         cards = []
         data = {}
-        week_total = {}
         today_week = datetime.datetime.today().isocalendar()[1]
     
         for card in self.card_set.all():
@@ -39,14 +38,12 @@ class Board(models.Model):
                 week = "%s-%s" % (end_date.isocalendar()[1], end_date.isocalendar()[0])
                 if week not in data:
                     data[week] = {card.type : 1}
-                    week_total[week] = 1
 
                 else:
                     if card.type in data[week]:
                         data[week][card.type] += 1
                     else:
                         data[week][card.type] = 1
-                    week_total[week] += 1
         year_list = {}
 
         for week in data.keys():
@@ -71,13 +68,9 @@ class Board(models.Model):
                     
                 week+=1
 
-        tp_median = numpy.median(list(week_total.values()))
-        tp_mean = numpy.mean(list(week_total.values()))
         result = { 
                 'labels': CARD_TYPE_CHOICES,
                 'data': data,
-                'median': tp_median,
-                'mean': tp_mean
                 }
         return result
     
@@ -172,9 +165,9 @@ class Label(models.Model):
  
 
 LEADTIME_CHOICES = (
-        ("Start", "Pode representar o início do Leadtime"),
-        ("End", "Pode representar o fim do Leadtime"),
-        ("None", "Não considerar nem como início nem fim")
+        ("Start", "Início do Leadtime"),
+        ("End", "Fim do Leadtime"),
+        ("None", "Indiferente")
 )
 
 class Column(models.Model):
@@ -272,6 +265,7 @@ GRAPH_CHOICES = (
         ("ThroughputMedian", "Mediana Throughput"),
 
 )
+
 class GraphData(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     graph = models.CharField(
@@ -280,3 +274,27 @@ class GraphData(models.Model):
     )
     data = models.TextField()
 
+
+class ChartCFD(models.Model):
+    board = models.OneToOneField(Board, on_delete=models.CASCADE)
+    chart_columns = models.CharField(max_length=250)
+
+
+class ChartCFDData(models.Model):
+    data = models.TextField()
+    day = models.DateField()
+    chartcfd = models.ForeignKey(ChartCFD, on_delete = models.CASCADE)
+
+
+class ChartThroughput(models.Model):
+    week_label = models.CharField(max_length=12)
+    week = models.IntegerField()
+    year = models.IntegerField()
+    data = models.TextField()
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+
+
+class ChartLeadtime(models.Model):
+    end_date = models.DateField()
+    leadtime = models.IntegerField()
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
