@@ -5,6 +5,8 @@ import json
 import requests
 import numpy
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.utils import timezone
 
 class Command(BaseCommand):
     local_list_names = {}
@@ -77,30 +79,40 @@ class Command(BaseCommand):
 
 
     def save_cfd_data(self, board):
-         number_of_days = 120
-         date_starter = datetime.date.today() - datetime.timedelta(days=number_of_days)
+         number_of_days = 220
+         date_starter = timezone.now() - datetime.timedelta(days=number_of_days)
          columns = board.column_set.all().order_by('-board_position')
          cfd_hash = {}
          class EndColumn: name = "Done"
          cards_done = []
-         while date_starter <= datetime.date.today():
-             cfd_hash[date_starter]= {}
+
+         bla = 0
+         while date_starter.date() <= datetime.date.today():
+             cfd_hash[date_starter.date()]= {}
+
              for column in columns:
-                 transactions = column.transaction_set.all()
+
+                 transactions = column.transaction_set.filter(
+                         Q(date__date__lte=date_starter),
+                         Q(end_date_cache__gt=date_starter) | Q(end_date_cache__isnull=True))
                  if column.leadtime_period=="End":
                      column = EndColumn
-                 if column.name not in cfd_hash[date_starter]:
-                     cfd_hash[date_starter][column.name]=[]
- 
+                 if column.name not in cfd_hash[date_starter.date()]:
+                     cfd_hash[date_starter.date()][column.name]=[]
                  for transaction in transactions:
-                     if (date_starter >=
-                                     transaction.date.date() and date_starter <
+                     if (date_starter.date() >=
+                                     transaction.date.date() and
+                                     date_starter.date() <
                                      transaction.end_date.date()):
-                         cfd_hash[date_starter][column.name].append(transaction.card.id)
- 
+                         cfd_hash[date_starter.date()][column.name].append(transaction.card.id)
                          if column.name=="Done":
                              cards_done.append(transaction.card.id)
+
+                     else:
+                         bla+=1
+ 
              date_starter+=datetime.timedelta(days=1)
+         print(bla)
          cfd_header = ['Dia']
  
          cfd_list = [cfd_header]
@@ -108,6 +120,7 @@ class Command(BaseCommand):
          for day in cfd_hash.keys():
              cfd_day_list = [str(day)]
              end_column_filled = False
+             column_totals={}
              for column in columns:
                  if not (column.leadtime_period=="End" and end_column_filled == True) and column.active:
                      if column.leadtime_period=="End":
@@ -120,7 +133,11 @@ class Command(BaseCommand):
                      if column.name not in cfd_header:
                          cfd_header.append(column.name)
                          cfd_list[0] = cfd_header
-                     cfd_day_list.append(total)
+                     if column.name not in column_totals.keys():
+                         column_totals[column.name]=0
+                     column_totals[column.name]+=total
+             for total in column_totals.values():
+                cfd_day_list.append(total)
               
              cfd_list.append(cfd_day_list)
              if len(cfd_list)==2:

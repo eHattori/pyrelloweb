@@ -195,15 +195,21 @@ class Card(models.Model):
     choice_text = models.CharField(max_length=200)
     labels = models.ManyToManyField(Label)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    end_date_cache = models.DateTimeField(blank=True, null=True)
 
     @property
     def end_date(self):
         end_columns = self.board.column_set.filter(leadtime_period="End").order_by('importance_order')
+        if self.end_date_cache:
+            return self.end_date_cache
+
         end_date = ""
         for transaction in self.transaction_set.all():
             for end_column in end_columns:
                 if end_date=="" and transaction.column==end_column:
                     end_date = transaction.date
+                    self.end_date_cache = end_date
+                    self.save()
                     return  end_date
         return end_date
 
@@ -242,14 +248,19 @@ class Transaction(models.Model):
     date = models.DateTimeField()
     column = models.ForeignKey(Column, on_delete=models.CASCADE)
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    end_date_cache = models.DateTimeField(blank=True, null=True)
     class Meta:
         unique_together = ('column', 'date',)
 
     @property
     def end_date(self):
+        if self.end_date_cache:
+            return self.end_date_cache
         result = Transaction.objects.filter(card__id=self.card.id).filter(
                 date__gt=self.date).order_by('date')
         try:
+            self.end_date_cache = result[0].date
+            self.save()
             return result[0].date
         except:
             return datetime.datetime.today()+datetime.timedelta(days=1)
@@ -263,7 +274,6 @@ GRAPH_CHOICES = (
         ("90Percentil", "90 Percentil Leadtime"),
         ("ThroughputMean", "Média Throughput"),
         ("ThroughputMedian", "Mediana Throughput"),
-
 )
 
 class GraphData(models.Model):
