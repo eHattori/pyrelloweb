@@ -89,14 +89,14 @@ class Command(BaseCommand):
                  transactions = column.transaction_set.all()
                  if column.leadtime_period=="End":
                      column = EndColumn
-                 if column not in cfd_hash[date_starter]:
-                     cfd_hash[date_starter][column]=[]
+                 if column.name not in cfd_hash[date_starter]:
+                     cfd_hash[date_starter][column.name]=[]
  
                  for transaction in transactions:
                      if (date_starter >=
                                      transaction.date.date() and date_starter <
                                      transaction.end_date.date()):
-                         cfd_hash[date_starter][column].append(transaction.card.id)
+                         cfd_hash[date_starter][column.name].append(transaction.card.id)
  
                          if column.name=="Done":
                              cards_done.append(transaction.card.id)
@@ -113,10 +113,10 @@ class Command(BaseCommand):
                      if column.leadtime_period=="End":
                          column = EndColumn
                          end_column_filled = True
-                         total = len(cfd_hash[day][column])
+                         total = len(cfd_hash[day][column.name])
                          total = total-done_start
                      else:
-                         total = len(cfd_hash[day][column])
+                         total = len(cfd_hash[day][column.name])
                      if column.name not in cfd_header:
                          cfd_header.append(column.name)
                          cfd_list[0] = cfd_header

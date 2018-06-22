@@ -60,13 +60,13 @@ class Command(BaseCommand):
                     'options':{'server': board.jira_server_url},
                     'JIRA_USER': board.trello_user_key,
                     'JIRA_PASSWORD': board.trello_user_token,
-                    'BOARD_NAME': board.board_id
+                    'BOARD_ID': board.board_id
             }
             print(board.name)
             for i in range(0, 10000, 50):
                 print("Range: %s - %s" % (i, i+50))
                 jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
-                issues = jira.search_issues('project='+ settings['BOARD_NAME'],
+                issues = jira.search_issues('filter='+ settings['BOARD_ID'],
                         startAt=i,
                         maxResults=i+50, json_result=True)
 
