@@ -61,20 +61,18 @@ class Command(BaseCommand):
                     'BOARD_ID': board.board_id
             }
             print(board.name)
-            for i in range(0, 10000, 50):
-                print("Range: %s - %s" % (i, i+50))
+            for i in range(0, 10000, 100):
+                print("Range: %s - %s" % (i, i+100))
                 jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
                 issues = jira.search_issues('filter='+ settings['BOARD_ID'],
                         startAt=i,
-                        maxResults=i+50, fields='changelog, issuetype, labels',
+                        maxResults=i+100, fields='changelog, issuetype, labels',
                         expand='changelog', json_result=True)
-
                 if len(issues["issues"])==0:
                     break
 
                 issues = issues['issues']
                 issues = {issue['key']:issue for issue in issues}
-
                 for key, issue in issues.items():  
                     issue_type = issue['fields']['issuetype']['name']
                     try:
