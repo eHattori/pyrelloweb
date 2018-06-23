@@ -1,9 +1,8 @@
+# coding=UTF-8
 from django.core.management.base import BaseCommand, CommandError
 from pyrellowebapp import models
-
 import json
 import requests
-
 class Command(BaseCommand):
     local_list_names = {}
 
@@ -48,7 +47,6 @@ class Command(BaseCommand):
         exit(response)
 
 
-
     def handle(self, *args, **options):
         from jira import JIRA
         if options['board'] != "":
@@ -68,32 +66,32 @@ class Command(BaseCommand):
                 jira = JIRA(options=settings['options'], basic_auth= (settings['JIRA_USER'], settings['JIRA_PASSWORD']))
                 issues = jira.search_issues('filter='+ settings['BOARD_ID'],
                         startAt=i,
-                        maxResults=i+50, json_result=True)
+                        maxResults=i+50, fields='changelog, issuetype, labels',
+                        expand='changelog', json_result=True)
 
                 if len(issues["issues"])==0:
                     break
 
                 issues = issues['issues']
                 issues = {issue['key']:issue for issue in issues}
-                for key, issue in issues.items():  
 
-                    issue = jira.issue(key, expand='changelog')
+                for key, issue in issues.items():  
+                    issue_type = issue['fields']['issuetype']['name']
                     try:
                         label_obj = models.Label.objects.get(
-                                name=issue.fields.issuetype.name,
+                                name=issue_type,
                                 board = board)
                     except Exception as e:
                         print(e)
                         label_obj = models.Label()
 
-                    label_obj.name = issue.fields.issuetype.name
+                    label_obj.name = issue_type
                     label_obj.board = board
                     label_obj.save()
 
                     labels = [label_obj]
 
-                    
-                    for label in issue.fields.labels:
+                    for label in issue['fields']['labels']:
                         try:
                             label_obj = models.Label.objects.get(
                                     name=label,
@@ -107,36 +105,36 @@ class Command(BaseCommand):
                         label_obj.save()
                         labels.append(label_obj)
                     card_dict = {
-                        'card_id': issue.id,
-                        "name": issue.key,
+                        'card_id': issue['id'],
+                        "name": issue['key'],
                         "labels": labels,
                         "transactions" : [],
                         "columns": []
                     }
      
-                    
-                    for history in issue.changelog.histories:
-                        for item in history.items:
-                            if item.field == 'status':
+                    for history in issue['changelog']['histories']:
+                        for item in history['items']:
+                            if item['field'] == 'status':
                                 try:
                                     column =  models.Column.objects.get(
-                                            column_id = item.to,
+                                            column_id = item['to'],
                                             board = board
                                             )
                                 except Exception as e:
                                     print(e)
                                     column = models.Column()
                             
-                                column.column_id = item.to
-                                column.name = item.toString
+                                column.column_id = item['to']
+                                column.name = item['toString']
                                 column.board = board
                                 column.save()
                                 card_dict['columns'].append(column)
 
                                 card_dict["transactions"].append( models.Transaction(
-                                        date = history.created, 
+                                        date = history['created'], 
                                         column = column)
                                 )
+
 
                     self.save_board_cards(card_dict, board)
 
