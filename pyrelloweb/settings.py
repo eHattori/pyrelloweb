@@ -143,14 +143,14 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-STATIC_ROOT = normpath(join(BASE_DIR, 'static/'))
+STATIC_ROOT = os.path.normpath(join(BASE_DIR, 'static/'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    normpath(join(BASE_DIR, 'static/')),
+    os.path.normpath(join(BASE_DIR, 'static/')),
 )
 # Configure Django App for Heroku.
 import django_heroku
