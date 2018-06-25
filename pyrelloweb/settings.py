@@ -19,6 +19,7 @@ CELERY_TASK_EAGER_PROPAGATES_EXCEPTIONS = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_PATH = os.path.join(os.path.abspath(os.path.split(__file__)[0]),)
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
@@ -114,8 +115,17 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 
@@ -143,14 +153,15 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'static/'))
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
+STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.normpath(os.path.join(BASE_DIR, 'static/')),
+    os.path.join(PROJECT_PATH, '../static'),
 )
 # Configure Django App for Heroku.
 import django_heroku
