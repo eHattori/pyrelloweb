@@ -86,33 +86,29 @@ class Command(BaseCommand):
          class EndColumn: name = "Done"
          cards_done = []
 
-         bla = 0
          while date_starter.date() <= datetime.date.today():
-             cfd_hash[date_starter.date()]= {}
+            cfd_hash[date_starter.date()]= {}
 
-             for column in columns:
+            for column in columns:
 
-                 transactions = column.transaction_set.filter(
+                transactions = column.transaction_set.filter(
                          Q(date__date__lte=date_starter),
                          Q(end_date_cache__gt=date_starter) | Q(end_date_cache__isnull=True))
-                 if column.leadtime_period=="End":
+                if column.leadtime_period=="End":
                      column = EndColumn
-                 if column.name not in cfd_hash[date_starter.date()]:
+                if column.name not in cfd_hash[date_starter.date()]:
                      cfd_hash[date_starter.date()][column.name]=[]
-                 for transaction in transactions:
-                     if (date_starter.date() >=
+                for transaction in transactions:
+                    if (date_starter.date() >=
                                      transaction.date.date() and
                                      date_starter.date() <
                                      transaction.end_date.date()):
-                         cfd_hash[date_starter.date()][column.name].append(transaction.card.id)
-                         if column.name=="Done":
-                             cards_done.append(transaction.card.id)
-
-                     else:
-                         bla+=1
+                        if transaction.card.id not in cfd_hash[date_starter.date()][column.name]:
+                            cfd_hash[date_starter.date()][column.name].append(transaction.card.id)
+                        if column.name=="Done":
+                            cards_done.append(transaction.card.id)
  
-             date_starter+=datetime.timedelta(days=1)
-         print(bla)
+            date_starter+=datetime.timedelta(days=1)
          cfd_header = ['Dia']
  
          cfd_list = [cfd_header]
