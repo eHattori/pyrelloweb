@@ -153,17 +153,21 @@ def cfd(request):
                     done_start = len(data['Done'])
                     
                 cfd_line = [str(cfd.day)]
-                for column in data:
-                    if column=='Done':
-                        value = len(data[column]) - done_start
-                    if column not in ('Done'):
-                        value = len(data[column])
-                    cfd_line.append(value)
+                for column in chart_columns:
+                    if column != 'Day':
+                        if column not in data:
+                            value = 0
+                        else:
+                            if column=='Done':
+                                value = len(data[column]) - done_start
 
+                            else:
+                                value = len(data[column])
+                        cfd_line.append(value)
                 cfd_graph.append(cfd_line)
 
         except Exception as e:
             print(e)
-            cfd_graph = []
+            cfd_graph = [e]
  
     return cfd_graph

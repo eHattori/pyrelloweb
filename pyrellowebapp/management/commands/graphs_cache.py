@@ -106,7 +106,8 @@ class Command(BaseCommand):
         columns = board.column_set.filter(active=True).order_by('-board_position')
         header = ['Day']
         for column in columns:
-            header.append(column.name)
+            if column.name not in header:
+                header.append(column.name)
         return header
 
     def save_cfd_data(self, board):
