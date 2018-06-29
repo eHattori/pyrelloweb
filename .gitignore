@@ -2,3 +2,5 @@
 *.pyc
 testedb
 development.db
+.coverage
+cover
