@@ -82,7 +82,7 @@ class Command(BaseCommand):
         cfd_hash[cfd_day]= {}
         class EndColumn: name = "Done"
         cards_done = []
-        columns = board.column_set.all().order_by('-board_position')
+        columns = board.column_set.filter(active=True).order_by('-board_position')
         for column in columns:
             transactions = column.transaction_set.filter(
                      Q(date__date__lte=cfd_day),
@@ -102,8 +102,15 @@ class Command(BaseCommand):
                         cards_done.append(transaction.card.id)
         return cfd_hash
 
+    def get_cfd_header(self, board):
+        columns = board.column_set.filter(active=True).order_by('-board_position')
+        header = ['Day']
+        for column in columns:
+            header.append(column.name)
+        return header
+
     def save_cfd_data(self, board):
-         number_of_days = 10
+         number_of_days = 120
          date_starter = timezone.now() - datetime.timedelta(days=number_of_days)
          cfd_list = []
 
@@ -115,10 +122,12 @@ class Command(BaseCommand):
          except ObjectDoesNotExist:
              cfdObj = models.ChartCFD()
              cfdObj.board = board
-         cfdObj.chart_columns = ""
+
+         cfdObj.chart_columns = json.dumps(self.get_cfd_header(board))
          cfdObj.save()
          cfd_day_list = []
          cfdObj.chartcfddata_set.all().delete()
+
          for data in cfd_list:
             cfd_day = models.ChartCFDData()
             cfd_day.day = list(data.keys())[0]

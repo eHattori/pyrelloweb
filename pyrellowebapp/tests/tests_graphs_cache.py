@@ -6,6 +6,8 @@ from django.utils import timezone
 import datetime
 from pprint import pprint
 import json
+from pyrellowebapp.templatetags import graphics_tags
+from django.test.client import RequestFactory
 
 class TestGraphsChart(TestCase):
     first_transaction = None
@@ -13,6 +15,8 @@ class TestGraphsChart(TestCase):
     card = None
 
     def setUp(self):
+        self.factory = RequestFactory()
+
         self.board = models.Board()
         self.board.name="Teste"
         self.board.trello_user_key="teste"
@@ -86,7 +90,11 @@ class TestGraphsChart(TestCase):
         gc.save_cfd_data(self.board)
         cfd_list = models.ChartCFDData.objects.filter(day__gte=self.first_transaction.date.date())
         self.assertEqual(len(cfd_list), 5)
-        
+
+        save_columns = self.board.chartcfd.chart_columns
+        expected_columns = json.dumps(['Day', 'Done', 'Doing', 'ToDo'])
+        self.assertEqual( save_columns, expected_columns)
+
         cfd = cfd_list[0]
         data = json.loads(cfd.data)
         expected_day = self.first_transaction.date.date()
@@ -156,12 +164,11 @@ class TestGraphsChart(TestCase):
 
         today = datetime.date.today()
         cfd = models.ChartCFDData.objects.get(day=today)
-        expected_done_data = {'Done': [1, 2], 'Doing': [], 'ToDo': []}
+        expected_done_data = {'Done': [1,2], 'Doing': [], 'ToDo': []}
         self.assertEqual(json.loads(cfd.data), expected_done_data)
 
     def test_03_columns_w_same_name_out_of_order(self):
         gc = graphs_cache.Command()
-        """
         card2 = models.Card()
         card2.board = self.board
         card2.card_id="1213"
@@ -183,17 +190,54 @@ class TestGraphsChart(TestCase):
         transaction.column = column
         transaction.date = timezone.now()-datetime.timedelta(days=2)
         transaction.save()
-        """
 
         gc.save_cfd_data(self.board)
 
         today = datetime.date.today()
         cfd = models.ChartCFDData.objects.get(day=today)
-        expected_done_data = {'Done': [1], 'Doing': [], 'ToDo': []}
+        expected_done_data = {'Done': [1], 'Doing': [2], 'ToDo': []}
         self.assertEqual(json.loads(cfd.data), expected_done_data)
 
     def test_04_group_cfd_cards(self):
+        gc = graphs_cache.Command()
+        card2 = models.Card()
+        card2.board = self.board
+        card2.card_id="1213"
+        card2.end_date_cache=None
+        card2.name="card 2"
+        card2.save()
+
+        column = models.Column()
+        column.board = self.board
+        column.board_position=100
+        column.column_id="3"
+        column.importance_order=100
+        column.leadtime_period='End'
+        column.name='Fechou'
+        column.save()
+
+        transaction = models.Transaction()
+        transaction.card = card2
+        transaction.column = column
+        transaction.date = timezone.now()-datetime.timedelta(days=1)
+        transaction.save()
+
         today = datetime.date.today()
         cfd_day = graphs_cache.Command.group_cfd_cards(self, today, self.board)
-        expected_done_data = {today: {'Done': [1], 'Doing': [], 'ToDo': []}}
+        expected_done_data = {today: {'Done': [2,1], 'Doing': [], 'ToDo': []}}
         self.assertEqual(cfd_day, expected_done_data)
+
+    def test_get_cfd_header(self):
+        cfd_header = graphs_cache.Command.get_cfd_header(self, self.board)
+        self.assertEqual(cfd_header, ['Day', 'Done', 'Doing', 'ToDo'])
+
+    def test_cfd_templatetag(self):
+        gc = graphs_cache.Command()
+        gc.save_cfd_data(self.board)
+        request = self.factory.get('/', {'board_id': 'teste', 'number_of_days':'1'})
+        cfd_tag = graphics_tags.cfd(request)
+        self.assertEqual(cfd_tag[0], ['Day', 'Done', 'Doing', 'ToDo'])
+        expeted_date = str(datetime.date.today() - datetime.timedelta(days=1))
+        self.assertEqual(cfd_tag[1], [expeted_date, 0, 1, 0])
+        expeted_date = str(datetime.date.today())
+        self.assertEqual(cfd_tag[2], [expeted_date, 1, 0, 0])
