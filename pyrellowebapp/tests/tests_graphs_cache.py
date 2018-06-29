@@ -51,7 +51,7 @@ class TestGraphsChart(TestCase):
         column.column_id="30"
         column.importance_order=30
         column.leadtime_period='End'
-        column.name='Done'
+        column.name='Encerrado'
         column.save()
         end_column = column
 
@@ -241,3 +241,34 @@ class TestGraphsChart(TestCase):
         self.assertEqual(cfd_tag[1], [expected_date, 0, 1, 0])
         expected_date = str(datetime.date.today())
         self.assertEqual(cfd_tag[2], [expected_date, 1, 0, 0])
+
+    def test_cfd_templatetag(self):
+        card2 = models.Card()
+        card2.board = self.board
+        card2.card_id="1213"
+        card2.end_date_cache=None
+        card2.name="card 2"
+        card2.save()
+
+        column = models.Column()
+        column.board = self.board
+        column.board_position=100
+        column.column_id="3"
+        column.importance_order=100
+        column.leadtime_period='End'
+        column.name='Encerrado 2'
+        column.save()
+
+        transaction = models.Transaction()
+        transaction.card = card2
+        transaction.column = column
+        transaction.date = timezone.now()-datetime.timedelta(days=2)
+        transaction.save()
+
+        gc = graphs_cache.Command()
+        gc.save_cfd_data(self.board)
+
+        today = datetime.date.today()
+        cfd = models.ChartCFDData.objects.get(day=today)
+        expected_done_data = {'Done': [2,1], 'Doing': [], 'ToDo': []}
+        self.assertEqual(json.loads(cfd.data), expected_done_data)

@@ -11,7 +11,6 @@ from django.utils import timezone
 class Command(BaseCommand):
     local_list_names = {}
 
-
     def add_arguments(self, parser):
         parser.add_argument(
         '--board',
@@ -21,8 +20,6 @@ class Command(BaseCommand):
             default="",
             help='Import the board with this id',
         )
-
-
 
     def save_leadtime(self, board):
         for card in board.card_set.all():
@@ -106,6 +103,8 @@ class Command(BaseCommand):
         columns = board.column_set.filter(active=True).order_by('-board_position')
         header = ['Day']
         for column in columns:
+            if column.leadtime_period == 'End':
+                column.name = 'Done'
             if column.name not in header:
                 header.append(column.name)
         return header
