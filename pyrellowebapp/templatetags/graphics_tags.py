@@ -142,21 +142,32 @@ def cfd(request):
             end_date = datetime.date.today()
 
             cfd_graph_data = board.chartcfd.chartcfddata_set.filter(
-                    day__range=(start_date, end_date))
+                    day__range=(start_date, end_date)).order_by('day')
             chart_columns = json.loads(board.chartcfd.chart_columns)
             cfd_graph.append(chart_columns)
-            i=0
-            for data in cfd_graph_data:
-                done_index = chart_columns.index('Done')
-                data = json.loads(data.data)
-                if i == 0:
-                    done_start = data[done_index] 
-                    i += 1
-                data[done_index]-=done_start
-                cfd_graph.append(data)
+            done_start = ""
+
+            for cfd in cfd_graph_data:
+                data = json.loads(cfd.data)
+                if done_start == "":
+                    done_start = len(data['Done'])
+                    
+                cfd_line = [str(cfd.day)]
+                for column in chart_columns:
+                    if column != 'Day':
+                        if column not in data:
+                            value = 0
+                        else:
+                            if column=='Done':
+                                value = len(data[column]) - done_start
+
+                            else:
+                                value = len(data[column])
+                        cfd_line.append(value)
+                cfd_graph.append(cfd_line)
 
         except Exception as e:
             print(e)
-            cfd_graph = []
+            cfd_graph = [e]
  
     return cfd_graph

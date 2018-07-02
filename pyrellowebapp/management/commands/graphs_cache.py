@@ -11,7 +11,6 @@ from django.utils import timezone
 class Command(BaseCommand):
     local_list_names = {}
 
-
     def add_arguments(self, parser):
         parser.add_argument(
         '--board',
@@ -21,8 +20,6 @@ class Command(BaseCommand):
             default="",
             help='Import the board with this id',
         )
-
-
 
     def save_leadtime(self, board):
         for card in board.card_set.all():
@@ -77,84 +74,64 @@ class Command(BaseCommand):
             tp_obj.data = json.dumps(line)
             tp_obj.save()
 
+    def group_cfd_cards(self, cfd_day, board):
+        cfd_hash = {}
+        cfd_hash[cfd_day]= {}
+        class EndColumn: name = "Done"
+        cards_done = []
+        columns = board.column_set.filter(active=True).order_by('-board_position')
+        for column in columns:
+            transactions = column.transaction_set.filter(
+                     Q(date__date__lte=cfd_day),
+                     Q(end_date_cache__date__gt=cfd_day) | Q(end_date_cache__isnull=True))
+            if column.leadtime_period=="End":
+                 column = EndColumn
+            if column.name not in cfd_hash[cfd_day]:
+                 cfd_hash[cfd_day][column.name]=[]
+            for transaction in transactions:
+                if (cfd_day >=
+                                 transaction.date.date() and
+                                 cfd_day <
+                                 transaction.end_date.date()):
+                    if transaction.card.id not in cfd_hash[cfd_day][column.name]:
+                        cfd_hash[cfd_day][column.name].append(transaction.card.id)
+                    if column.name=="Done":
+                        cards_done.append(transaction.card.id)
+        return cfd_hash
+
+    def get_cfd_header(self, board):
+        columns = board.column_set.filter(active=True).order_by('-board_position')
+        header = ['Day']
+        for column in columns:
+            if column.leadtime_period == 'End':
+                column.name = 'Done'
+            if column.name not in header:
+                header.append(column.name)
+        return header
 
     def save_cfd_data(self, board):
-         number_of_days = 220
+         number_of_days = 120
          date_starter = timezone.now() - datetime.timedelta(days=number_of_days)
-         columns = board.column_set.all().order_by('-board_position')
-         cfd_hash = {}
-         class EndColumn: name = "Done"
-         cards_done = []
+         cfd_list = []
 
          while date_starter.date() <= datetime.date.today():
-            cfd_hash[date_starter.date()]= {}
-
-            for column in columns:
-
-                transactions = column.transaction_set.filter(
-                         Q(date__date__lte=date_starter),
-                         Q(end_date_cache__gt=date_starter) | Q(end_date_cache__isnull=True))
-                if column.leadtime_period=="End":
-                     column = EndColumn
-                if column.name not in cfd_hash[date_starter.date()]:
-                     cfd_hash[date_starter.date()][column.name]=[]
-                for transaction in transactions:
-                    if (date_starter.date() >=
-                                     transaction.date.date() and
-                                     date_starter.date() <
-                                     transaction.end_date.date()):
-                        if transaction.card.id not in cfd_hash[date_starter.date()][column.name]:
-                            cfd_hash[date_starter.date()][column.name].append(transaction.card.id)
-                        if column.name=="Done":
-                            cards_done.append(transaction.card.id)
- 
+            cfd_list.append(self.group_cfd_cards(date_starter.date(), board))
             date_starter+=datetime.timedelta(days=1)
-         cfd_header = ['Dia']
- 
-         cfd_list = [cfd_header]
-         done_start = 0
-         for day in cfd_hash.keys():
-             cfd_day_list = [str(day)]
-             end_column_filled = False
-             column_totals={}
-             for column in columns:
-                 if not (column.leadtime_period=="End" and end_column_filled == True) and column.active:
-                     if column.leadtime_period=="End":
-                         column = EndColumn
-                         end_column_filled = True
-                         total = len(cfd_hash[day][column.name])
-                         total = total-done_start
-                     else:
-                         total = len(cfd_hash[day][column.name])
-                     if column.name not in cfd_header:
-                         cfd_header.append(column.name)
-                         cfd_list[0] = cfd_header
-                     if column.name not in column_totals.keys():
-                         column_totals[column.name]=0
-                     column_totals[column.name]+=total
-             for total in column_totals.values():
-                cfd_day_list.append(total)
-              
-             cfd_list.append(cfd_day_list)
-             if len(cfd_list)==2:
-                 done_index = cfd_list[0].index('Done')
-                 done_start=cfd_day_list[done_index]
-                 cfd_list[1][done_index]=0
          try:
              cfdObj = board.chartcfd
          except ObjectDoesNotExist:
              cfdObj = models.ChartCFD()
              cfdObj.board = board
-         cfdObj.chart_columns = json.dumps(cfd_header)
-         cfdObj.save() 
-         header = cfd_list.pop(0)
+
+         cfdObj.chart_columns = json.dumps(self.get_cfd_header(board))
+         cfdObj.save()
          cfd_day_list = []
          cfdObj.chartcfddata_set.all().delete()
+
          for data in cfd_list:
             cfd_day = models.ChartCFDData()
-            cfd_day.day = data[0]
-            cfd_day.data = json.dumps(data)
-            cfd_day_list.append(cfd_day)
+            cfd_day.day = list(data.keys())[0]
+            cfd_day.data = json.dumps(data[cfd_day.day])
             cfd_day.chartcfd = cfdObj
             cfd_day.save()
          cfdObj.save()
