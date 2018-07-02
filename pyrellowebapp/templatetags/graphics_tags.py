@@ -8,7 +8,11 @@ import numpy
 
 register = template.Library()
 
+VALUE_TYPE_INDEX = 1
 BUG_TYPE_INDEX = 2
+IMPROVEMENT_TYPE_INDEX = 3
+OPS_TYPE_INDEX = 4
+OTHERS_TYPE_INDEX = 5
 SATURDAY = 5
 DEFAULT_NUMBER_OF_DAYS = 60
 
@@ -80,7 +84,7 @@ def throughput(request):
         DEFAULT_NUMBER_OF_DAYS))
 
     chart = []
-    result = {'labels': models.CARD_TYPE_CHOICES, 'mean': '-', 'median': '-',
+    result = {'labels': models.CARD_TYPE_CHOICES, 'mean_general': '-', 'mean_value': '-',
             'defectload': '-'}
     if board_id:
         board = Board.objects.get(board_id=board_id)
@@ -106,6 +110,12 @@ def throughput(request):
 
             total_tp = 0
             total_bug = 0
+            total_value = 0
+            total_ops = 0
+            total_improvement = 0
+            total_others = 0
+
+            total_tp_value_week_list = []
             total_tp_week_list = []
             for tp_obj in tp_list:
                 data = json.loads(tp_obj.data)
@@ -119,10 +129,23 @@ def throughput(request):
                             total_tp_week+=value
 
                     total_bug += data[BUG_TYPE_INDEX]
+                    total_value += data[VALUE_TYPE_INDEX]
+                    total_ops += data[OPS_TYPE_INDEX]
+                    total_improvement += data[IMPROVEMENT_TYPE_INDEX]
+                    total_others += data[OTHERS_TYPE_INDEX]
+                    total_tp_value_week_list.append(data[VALUE_TYPE_INDEX])
                     total_tp_week_list.append(total_tp_week) 
-            result['median'] = "%.1f" % round(numpy.median(total_tp_week_list))
-            result['mean'] = "%.1f" % round(numpy.mean(total_tp_week_list))
+            result['mean_value'] = "%.1f" % round(numpy.mean(total_tp_value_week_list))
+            result['mean_general'] = "%.1f" % round(numpy.mean(total_tp_week_list))
             result['defectload'] = "%.1f" % round((total_bug*100)/total_tp)
+            result['type_totals'] = [
+                ['Tipo de cartão', 'Total de entregas'],
+                ['Bug', total_bug],
+                ['Valor', total_value],
+                ['Melhorias', total_improvement],
+                ['Ops', total_ops],
+                ['Outros', total_others]
+            ]
             result['data'] = chart
         except Exception as e:
             print(e) 
