@@ -22,40 +22,67 @@
 
     {% leadtime request as leadtime_items %}
     {% if leadtime_items %}
-     <div class="row">
-      <div class="col-md-3">
-        <div class="card card-single-value mb-3">
-          <div class="card-header">90 Percentil Leadtime</div>
-          <div class="card-body">
-            <text class="card-title">{{ leadtime_items.percentile }}</text>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card card-single-value mb-3">
-          <div class="card-header">Média Throughput</div>
-          <div class="card-body">
-            <text class="card-title">{{ throughput_items.mean}}</text>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card card-single-value mb-3">
-          <div class="card-header">Mediana Throughput</div>
-          <div class="card-body">
-            <text class="card-title">{{ throughput_items.median }}</text>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card card-single-value mb-3">
-          <div class="card-header">Carga de Falha</div>
-          <div class="card-body">
-            <text class="card-title">{{ throughput_items.defectload }}%</text>
-          </div>
-        </div>
-      </div>
+    <div class="row">
+        <div style="width:60%">
+                <div style="float:left; margin:20px; width:43%">
+                        <div class="card card-single-value mb-3" style="height:150px">
+                          <div class="card-header">90% entregue em até</div>
+                          <div class="card-body">
+                            <text class="card-title">{{ leadtime_items.percentile }}</text><text class="title">dias</text>
+                          </div>
+                        </div>
+                        <div class="card card-single-value mb-3" style="height:150px">
+                          <div class="card-header">Carga de Falha</div>
+                          <div class="card-body">
+                            <text class="card-title">{{ throughput_items.defectload }}%</text>
+                          </div>
+                        </div>
+                </div>
 
+                <div style="float:left;  margin:20px; width:43%">
+                        <div class="card card-single-value mb-3" style="height:150px">
+                          <div class="card-header">Média de entrega de valor semanal</div>
+                          <div class="card-body">
+                            <text class="card-title">{{ throughput_items.mean_value }}</text>
+                          </div>
+                        </div>
+                        <div class="card card-single-value mb-3" style="height:150px">
+                          <div class="card-header">Média de entrega geral semanal</div>
+                          <div class="card-body">
+                            <text class="card-title">{{ throughput_items.mean_general}}</text>
+                          </div>
+                        </div>
+                </div>
+
+        </div>
+
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+              google.charts.load("current", {packages:["corechart"]});
+              google.charts.setOnLoadCallback(drawChart);
+              function drawChart() {
+
+                {% autoescape off %}
+                var data = google.visualization.arrayToDataTable({{throughput_items.type_totals}});
+                {% endautoescape %}
+              var options = {
+                legend: 'none',
+                pieSliceText: 'label',
+                pieStartAngle: 100,
+                height: 250,
+                chartArea: {top: 5, height:'100%'}
+              };
+
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                chart.draw(data, options);
+              }
+            </script>
+
+
+        <div class="card card-single-value mb-3" style="width:37%; margin-top:20px;  background-color:#fff;">
+            <div class="card-header">Entregas por tipo</div>
+            <div id="piechart" style="width: 100%; "></div>
+        </div>
     </div>
     {% endif %}
     {% cfd request as cfd_items %}
