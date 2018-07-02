@@ -5,6 +5,7 @@ from pyrellowebapp import models
 import json
 from django.db.models import Q
 import numpy
+import os
 
 register = template.Library()
 
@@ -15,7 +16,7 @@ OPS_TYPE_INDEX = 4
 OTHERS_TYPE_INDEX = 5
 SATURDAY = 5
 DEFAULT_NUMBER_OF_DAYS = 60
-
+PERCENTILE_CONFIG = os.environ.get('PERCENTILE', 80)
 @register.simple_tag
 def menu():
     boards = Board.objects.all()
@@ -69,9 +70,11 @@ def leadtime(request):
             total_items = []
             for item in leadtime:
                 total_items.append(item.leadtime)
-            percentile = "%.1f" % round(numpy.percentile(total_items, 90),2)
-            result = {'percentile' : percentile,
-                    'cards': leadtime}
+            percentile = "%.1f" % round(numpy.percentile(total_items, PERCENTILE_CONFIG),2)
+            result = {
+                'percentile_config' : PERCENTILE_CONFIG,
+                'percentile' : percentile,
+                'cards': leadtime}
             return result
         except Exception as e:
             print("error leadtime  %s" % e)
