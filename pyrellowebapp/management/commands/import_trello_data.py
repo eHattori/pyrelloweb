@@ -123,7 +123,7 @@ class Command(BaseCommand):
 
 
     def response_error(self, response):
-        exit(response)
+        print(response)
 
 
     def get_action_value(self, action):
@@ -159,6 +159,7 @@ class Command(BaseCommand):
         if card_response.status_code != 200:
             self.response_error("%s - %s" % (card_response.status_code,
                 card_response.text))
+            return []
 
         data = json.loads(card_response.text)
         return data
