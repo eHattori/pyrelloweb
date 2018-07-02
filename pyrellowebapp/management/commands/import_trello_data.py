@@ -150,7 +150,7 @@ class Command(BaseCommand):
 
 
     def get_card_list(self, board_id, querystring):
-        card_params = "actions=copyCard,createCard,updateCard"
+        card_params = "limit=300&actions=copyCard,createCard,updateCard"
         card_url = "https://api.trello.com/1/boards/%s/cards?%s" % (
             board_id, card_params)
 
@@ -204,31 +204,35 @@ class Command(BaseCommand):
 
 
             for card in card_list:
-                card_dict = {
-                    'id': card["id"],
-                    "name": card["name"],
-                    "labels": card["labels"],
-                    "start": "",
-                    "end": "",
-                    "transactions" : []
-                }
-                
-                for action in card['actions']:
-                    action_value = self.get_action_value(action)
-                    if action_value != None:
-                        try:
-                            column = models.Column.objects.get(column_id = action_value["list_id"])
+                try:
+                        card_dict = {
+                            'id': card["id"],
+                            "name": card["name"],
+                            "labels": card["labels"],
+                            "start": "",
+                            "end": "",
+                            "transactions" : []
+                        }
+                        
+                        for action in card['actions']:
+                            action_value = self.get_action_value(action)
+                            if action_value != None:
+                                try:
+                                    column = models.Column.objects.get(column_id = action_value["list_id"])
 
-                            card_dict["transactions"].append( models.Transaction(
-                                    date = action_value['date'], 
-                                    column = column)
-                            )
+                                    card_dict["transactions"].append( models.Transaction(
+                                            date = action_value['date'], 
+                                            column = column)
+                                    )
 
-                        except Exception as e:
-                            pass
+                                except Exception as e:
+                                    pass
 
 
-                self.save_board_cards(card_dict, board)
+                        self.save_board_cards(card_dict, board)
+                except Exception as e:
+                    print(e)
+                    pass
             print("Board %s exported" % board_name)
 
         print("Done")
