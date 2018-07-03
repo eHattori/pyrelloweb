@@ -70,7 +70,8 @@
                 pieSliceText: 'label',
                 pieStartAngle: 100,
                 height: 250,
-                chartArea: {top: 5, height:'100%'}
+                chartArea: {top: 5, height:'100%'},
+                colors:['#8BC34A', '#FF5733','#90CAF9', '#FFE082', '#D7CCC8'],
               };
 
                 var chart = new google.visualization.PieChart(document.getElementById('piechart'));
@@ -154,6 +155,7 @@
 
                           var options = {
                             title: 'Quantidade de entregas semanais',
+                            colors:['#8BC34A', '#FF5733','#90CAF9', '#FFE082', '#D7CCC8'],
                             isStacked: true,
                             height: 400,
                             hAxis: {
