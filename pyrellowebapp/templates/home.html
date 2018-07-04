@@ -22,9 +22,9 @@
 
     {% leadtime request as leadtime_items %}
     {% if leadtime_items %}
-    <div class="row">
-        <div style="width:60%">
-                <div style="float:left; margin:20px; width:43%">
+    <div class="row" style="min-width:955px; width: 100% !important; width: 955px; ">
+        <div style="min-width:600px; width: 60% !important; width: 600px;">
+                <div style="float:left; margin:16px; width:43%">
                         <div class="card card-single-value mb-3" style="height:150px">
                           <div class="card-header">{{leadtime_items.percentile_config}}% entregue em até</div>
                           <div class="card-body">
