@@ -231,12 +231,12 @@ class Card(models.Model):
     def start_date(self):
  
         start_columns = self.board.column_set.filter(leadtime_period="Start").order_by('importance_order')
+
         start_date = ""
-        for transaction in self.transaction_set.all():
-            for start_column in start_columns:
-                if start_date=="" and transaction.column==start_column:
-                    start_date = transaction.date
-                    start_columns = []
+
+        for start_column in start_columns:
+            for transaction in self.transaction_set.filter(column=start_column):
+                return transaction.date
         return start_date
 
     def get_leadtime(self):
