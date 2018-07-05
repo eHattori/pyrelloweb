@@ -8,7 +8,7 @@
   {% page request as page %}
     <div>
         <div>
-          <form method="get"><input type="hidden" name="board_id"
+          <form method="post">{% csrf_token %} <input type="hidden" name="board_id"
             value="{{page.board_id}}"/> <text class="page-title">
             {{page.title }}</h3>
           {% if page.board_id %}

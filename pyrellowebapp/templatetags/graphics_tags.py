@@ -21,14 +21,14 @@ DEFAULT_START_DATE = datetime.date.today() - datetime.timedelta(days=DEFAULT_NUM
 DEFAULT_END_DATE = datetime.date.today()
 
 def get_start_date(request):
-    start_date = request.GET.get('start_date', str(DEFAULT_START_DATE))
+    start_date = request.POST.get('start_date', str(DEFAULT_START_DATE))
     start_date = start_date.split("-")
     start_date = datetime.date(int(start_date[0]),int(start_date[1]),int(start_date[2]))
  
     return start_date
 
 def get_end_date(request):
-    end_date = request.GET.get('end_date', str(datetime.date.today()))
+    end_date = request.POST.get('end_date', str(datetime.date.today()))
     end_date = end_date.split("-")
     end_date = datetime.date(int(end_date[0]),int(end_date[1]),int(end_date[2]))
  
