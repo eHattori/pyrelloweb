@@ -117,7 +117,12 @@ def throughput(request):
             end_week =  end_date.isocalendar()[1]
             end_year = end_date.isocalendar()[0]
 
-            if end_week_day < SATURDAY:
+            ignore_date = datetime.date.today()
+            ignore_week = ignore_date.isocalendar()[1]
+            ignore_year = ignore_date.isocalendar()[0]
+            ignore_week_day = ignore_date.weekday()
+
+            if ignore_week_day < SATURDAY:
                 ignore = "%s-%s" % (end_week, end_year)
             else:
                 ignore = False
@@ -146,15 +151,13 @@ def throughput(request):
                         if counter!=0:
                             total_tp_week+=value
 
-                    total_bug += data[BUG_TYPE_INDEX]
-                    total_value += data[VALUE_TYPE_INDEX]
-                    total_ops += data[OPS_TYPE_INDEX]
-                    total_improvement += data[IMPROVEMENT_TYPE_INDEX]
-
-
-
                     total_tp_value_week_list.append(data[VALUE_TYPE_INDEX])
                     total_tp_week_list.append(total_tp_week) 
+
+                total_bug += data[BUG_TYPE_INDEX]
+                total_value += data[VALUE_TYPE_INDEX]
+                total_ops += data[OPS_TYPE_INDEX]
+                total_improvement += data[IMPROVEMENT_TYPE_INDEX]
 
             total_tp += total_bug+total_value+total_ops+total_improvement
             result['mean_value'] = "%.1f" % (numpy.mean(total_tp_value_week_list))
