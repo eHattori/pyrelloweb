@@ -34,7 +34,7 @@
         <div style="min-width:600px; width: 60% !important; width: 600px;">
                 <div style="float:left; margin:16px; width:43%">
                         <div class="card card-single-value mb-3" style="height:150px">
-                          <div class="card-header">{{leadtime_items.percentile_config}}% entregue em até</div>
+                          <div class="card-header">{{leadtime_items.percentile_config}}% de valor entregue em até</div>
                           <div class="card-body">
                             <text class="card-title">{{ leadtime_items.percentile }}</text><text class="title">dias</text>
                           </div>
@@ -79,7 +79,7 @@
                 pieStartAngle: 100,
                 height: 250,
                 chartArea: {top: 5, height:'100%'},
-                colors:['#FF5733','#8BC34A', '#90CAF9', '#FFE082', '#D7CCC8'],
+                colors:['#FF5733','#8BC34A', '#90CAF9', '#FFE082'],
               };
 
                 var chart = new google.visualization.PieChart(document.getElementById('piechart'));
@@ -89,7 +89,7 @@
 
 
         <div class="card card-single-value mb-3" style="width:37%; margin-top:20px;  background-color:#fff;">
-            <div class="card-header">Entregas por tipo</div>
+            <div class="card-header">Entregas principais por tipo</div>
             <div id="piechart" style="width: 100%; "></div>
         </div>
     </div>
@@ -192,7 +192,7 @@
         <div class="col-md-12">
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
-                    <text class="card-title">Leadtime</text>
+                    <text class="card-title">Leadtime dos cards de Valor</text>
                 </div>
                 <div class="card-body">
                   <div id="leadtime"> </div>
@@ -234,7 +234,7 @@
         <div class="col-md-12">
             <div class="card card-single-value mb-3">
                 <div class="card-header">
-                    <text class="card-title">Histogram</text>
+                    <text class="card-title">Histogram dos cards de Valor</text>
                 </div>
                 <div class="card-body">
                     <div id="histogram"></div>

@@ -23,16 +23,17 @@ class Command(BaseCommand):
 
     def save_leadtime(self, board):
         for card in board.card_set.all():
-            leadtime = card.get_leadtime()
-            if leadtime is not None and leadtime>=0:
-                try:
-                    leadtime_chart = models.ChartLeadtime.objects.get(card=card)
-                except models.ChartLeadtime.DoesNotExist:
-                    leadtime_chart = models.ChartLeadtime()
-                    leadtime_chart.card = card
-                leadtime_chart.end_date = card.end_date
-                leadtime_chart.leadtime = leadtime
-                leadtime_chart.save()
+            if card.type == "value":
+                leadtime = card.get_leadtime()
+                if leadtime is not None and leadtime>=0:
+                    try:
+                        leadtime_chart = models.ChartLeadtime.objects.get(card=card)
+                    except models.ChartLeadtime.DoesNotExist:
+                        leadtime_chart = models.ChartLeadtime()
+                        leadtime_chart.card = card
+                    leadtime_chart.end_date = card.end_date
+                    leadtime_chart.leadtime = leadtime
+                    leadtime_chart.save()
 
 
     def save_throughput(self, board):
@@ -67,9 +68,9 @@ class Command(BaseCommand):
             tp_obj.year = year
             tp_obj.board = board
 
-            week_values=""
-            for type in models.CARD_TYPE_CHOICES:
-                line.append(data[week_index][type[0]])
+            for card_type in models.CARD_TYPE_CHOICES:
+                type_key_index = 0
+                line.append(data[week_index][card_type[type_key_index]])
 
             tp_obj.data = json.dumps(line)
             tp_obj.save()

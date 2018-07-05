@@ -8,7 +8,7 @@ CARD_TYPE_CHOICES = (
         ("bug","Bug"),
         ("improvement","Melhorias"),
         ("ops","Ops"),
-        ("others","Outros")
+        ("others","Outros"),
         )
 BOARD_TYPE_CHOICES = (
         ("trello", "Trello"),
@@ -215,11 +215,17 @@ class Card(models.Model):
 
     @property
     def type(self):
-        if self.labels:
-            for label in self.labels.exclude(card_type="others"):
-                if label.card_type!="others":
-                    return label.card_type
+        labels = []
+        for label in self.labels.all(): labels.append(label.card_type)
+
+        if labels:
+            for card_type in CARD_TYPE_CHOICES:
+                card_type_key_index = 0
+                if card_type[card_type_key_index] != "others" and card_type[card_type_key_index] in labels:
+                    return card_type[card_type_key_index]
+            
         return "others"
+
 
     @property
     def start_date(self):
