@@ -17,6 +17,24 @@ OTHERS_TYPE_INDEX = 5
 SATURDAY = 5
 DEFAULT_NUMBER_OF_DAYS = 60
 PERCENTILE_CONFIG = os.environ.get('PERCENTILE', 80)
+DEFAULT_START_DATE = datetime.date.today() - datetime.timedelta(days=DEFAULT_NUMBER_OF_DAYS)
+DEFAULT_END_DATE = datetime.date.today()
+
+def get_start_date(request):
+    start_date = request.GET.get('start_date', str(DEFAULT_START_DATE))
+    start_date = start_date.split("-")
+    start_date = datetime.date(int(start_date[0]),int(start_date[1]),int(start_date[2]))
+ 
+    return start_date
+
+def get_end_date(request):
+    end_date = request.GET.get('end_date', str(datetime.date.today()))
+    end_date = end_date.split("-")
+    end_date = datetime.date(int(end_date[0]),int(end_date[1]),int(end_date[2]))
+ 
+    return end_date
+
+
 @register.simple_tag
 def menu():
     boards = Board.objects.all()
@@ -29,9 +47,11 @@ def menu():
 @register.simple_tag
 def page(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = request.GET.get('number_of_days', DEFAULT_NUMBER_OF_DAYS)
+    start_date = get_start_date(request)
+    end_date = get_end_date(request)
     result = {}
-    result['number_of_days'] = number_of_days
+    result['start_date'] = start_date
+    result['end_date'] = end_date
     result['title'] = "Início"
     if board_id:
         board = Board.objects.get(board_id=board_id)
@@ -58,12 +78,10 @@ def histogram(request):
 @register.simple_tag
 def leadtime(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days',
-        DEFAULT_NUMBER_OF_DAYS))
     if board_id:
         board = Board.objects.get(board_id=board_id)
-        start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
-        end_date = datetime.date.today()
+        start_date = get_start_date(request)
+        end_date = get_end_date(request)
         try:
             leadtime = models.ChartLeadtime.objects.filter(card__board=board,
                     end_date__range=(start_date, end_date)).order_by('end_date')
@@ -83,8 +101,6 @@ def leadtime(request):
 @register.simple_tag
 def throughput(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days',
-        DEFAULT_NUMBER_OF_DAYS))
 
     chart = []
     result = {'labels': models.CARD_TYPE_CHOICES, 'mean_general': '-', 'mean_value': '-',
@@ -92,8 +108,8 @@ def throughput(request):
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
-            start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
-            end_date = datetime.date.today()
+            start_date = get_start_date(request)
+            end_date = get_end_date(request)
             end_week_day = end_date.weekday()
             start_week = start_date.isocalendar()[1] 
             start_year = start_date.isocalendar()[0]
@@ -158,15 +174,12 @@ def throughput(request):
 @register.simple_tag
 def cfd(request):
     board_id = request.GET.get('board_id', None)
-    number_of_days = int(request.GET.get('number_of_days',
-        DEFAULT_NUMBER_OF_DAYS))
+    start_date = get_start_date(request)
+    end_date = get_end_date(request)
     cfd_graph = []
     if board_id:
         board = Board.objects.get(board_id=board_id)
         try:
-            start_date = datetime.date.today() - datetime.timedelta(days=number_of_days)
-            end_date = datetime.date.today()
-
             cfd_graph_data = board.chartcfd.chartcfddata_set.filter(
                     day__range=(start_date, end_date)).order_by('day')
             chart_columns = json.loads(board.chartcfd.chart_columns)

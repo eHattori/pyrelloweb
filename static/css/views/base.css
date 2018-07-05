@@ -127,6 +127,13 @@ body {
 .nowrap{
   white-space: nowrap
 }
+.input-date{
+  border: 0;
+  font-size: 14px;
+  box-shadow:none;
+  border-bottom:1px solid #ccc ;
+}
+
 
 .input-group-bottom-border .form-control{
   border: 0;

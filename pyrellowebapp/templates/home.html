@@ -12,7 +12,15 @@
             value="{{page.board_id}}"/> <text class="page-title">
             {{page.title }}</h3>
           {% if page.board_id %}
-          <h6>Últimos <input type="text" name="number_of_days" size="3" value="{{page.number_of_days}}"/> dias</h6>
+            <div>
+            <h6>
+                 <input type="date" width="20" name="start_date" max="3000-12-31"
+                        min="1000-01-01" class="input-date" value="{{page.start_date|date:"Y-m-d"}}"> até 
+                 <input type="date" name="end_date" min="1000-01-01"
+                        max="3000-12-31" class="input-date" value="{{page.end_date|date:"Y-m-d"}}"> 
+                 <input type="submit" value="Filtrar"/>
+            </h6>
+            </div>
           {% endif %}
           </form>
         </div>
