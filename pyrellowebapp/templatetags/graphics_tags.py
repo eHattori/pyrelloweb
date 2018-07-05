@@ -88,7 +88,10 @@ def leadtime(request):
             total_items = []
             for item in leadtime:
                 total_items.append(item.leadtime)
-            percentile = "%.1f" % round(numpy.percentile(total_items, PERCENTILE_CONFIG),2)
+            try:
+                percentile = "%.1f" % round(numpy.percentile(total_items, PERCENTILE_CONFIG),2)
+            except:
+                percentile = "-"
             result = {
                 'percentile_config' : PERCENTILE_CONFIG,
                 'percentile' : percentile,
@@ -160,9 +163,19 @@ def throughput(request):
                 total_improvement += data[IMPROVEMENT_TYPE_INDEX]
 
             total_tp += total_bug+total_value+total_ops+total_improvement
-            result['mean_value'] = "%.1f" % (numpy.mean(total_tp_value_week_list))
-            result['mean_general'] = "%.1f" % (numpy.mean(total_tp_week_list))
-            result['defectload'] = "%.1f" % ((total_bug*100)/total_tp)
+            try:
+                result['mean_value'] = "%.1f" % (numpy.mean(total_tp_value_week_list))
+            except:
+                result['mean_value'] = "-"
+            try:
+                result['mean_general'] = "%.1f" % (numpy.mean(total_tp_week_list))
+            except:
+                result['mean_general'] = "-"
+            try:
+                result['defectload'] = "%.1f" % ((total_bug*100)/total_tp)
+            except:
+                result['defectload'] = "-"
+                
             result['type_totals'] = [
                 ['Tipo de cartão', 'Total de entregas'],
                 ['Bug', total_bug],
