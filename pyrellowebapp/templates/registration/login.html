@@ -303,6 +303,18 @@ label:hover:before {
 <!-- Where all the magic happens -->
 <!-- LOGIN FORM -->
 <div class="text-center" style="padding:50px 0">
+    <div id="mudamos"  style="display: none;">
+    <img width="128" src="https://image.flaticon.com/icons/svg/602/602201.svg"/><br/>
+        Mudamos para os servidores do Labs. Anote o novo endereço :) <br/> <a href="http://pyrello-staging.magazineluiza.com.br">http://pyrello-staging.magazineluiza.com.br/</a>
+    </div>
+
+    <script type="text/javascript">
+    if(window.location.href.indexOf("127") > -1) {
+        var info = document.getElementById("mudamos");
+        info.style.display = "block";
+
+    }
+</script>
 	<div class="logo">Login</div>
 	<!-- Main Form -->
 	<div class="login-form-1">
@@ -315,6 +327,7 @@ label:hover:before {
 						<label for="lg_username" class="sr-only">Username</label>
 						<input type="text" class="form-control" id="username" required name="username" placeholder="username">
 					</div>
+
 					<div class="form-group">
 						<label for="lg_password" class="sr-only">Password</label>
 						<input type="password" class="form-control" id="password" name="password" required placeholder="password">
