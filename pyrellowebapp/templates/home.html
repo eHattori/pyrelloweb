@@ -8,10 +8,10 @@
   {% page request as page %}
     <div>
         <div>
-          <form method="post">{% csrf_token %} <input type="hidden" name="board_id"
-            value="{{page.board_id}}"/> <text class="page-title">
+          <form method="post">{% csrf_token %} <input type="hidden" name="db_board_id"
+            value="{{page.db_board_id}}"/> <text class="page-title">
             {{page.title }}</h3>
-          {% if page.board_id %}
+          {% if page.db_board_id %}
             <div>
             <h6>
                  <input type="date" width="20" name="start_date" max="3000-12-31"

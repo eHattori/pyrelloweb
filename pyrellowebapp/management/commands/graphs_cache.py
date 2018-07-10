@@ -18,11 +18,16 @@ class Command(BaseCommand):
             dest='board',
             type=str,
             default="",
-            help='Import the board with this id',
+            help='Generate charts for the board with this id',
         )
 
     def save_leadtime(self, board):
-        for card in board.card_set.all():
+        if board.filter_by_label:
+            filter_by_label = models.Label.objects.filter(name=board.filter_by_label)
+        else:
+            filter_by_label = [] 
+        models.ChartLeadtime.objects.filter(card__board=board).delete()
+        for card in board.card_set.filter(labels__in=filter_by_label):
             if card.type == "value":
                 leadtime = card.get_leadtime()
                 if leadtime is not None and leadtime>=0:
@@ -38,6 +43,8 @@ class Command(BaseCommand):
 
     def save_throughput(self, board):
         throughput_graph = []
+        board.chartthroughput_set.all().delete()
+        board.save()
         throughput_data = board.get_throughput()
 
         labels, data = throughput_data.values()
@@ -81,10 +88,17 @@ class Command(BaseCommand):
         class EndColumn: name = "Done"
         cards_done = []
         columns = board.column_set.filter(active=True).order_by('-board_position')
+
+        if board.filter_by_label:
+            filter_by_label = models.Label.objects.filter(name=board.filter_by_label)
+        else:
+            filter_by_label = [] 
+
         for column in columns:
             transactions = column.transaction_set.filter(
                      Q(date__date__lte=cfd_day),
-                     Q(end_date_cache__date__gt=cfd_day) | Q(end_date_cache__isnull=True))
+                     Q(end_date_cache__date__gt=cfd_day) | Q(end_date_cache__isnull=True),
+                     Q(card__labels__in=filter_by_label),)
             if column.leadtime_period=="End":
                  column = EndColumn
             if column.name not in cfd_hash[cfd_day]:

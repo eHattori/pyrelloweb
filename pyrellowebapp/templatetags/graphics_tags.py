@@ -40,32 +40,32 @@ def menu():
     boards = Board.objects.all()
     result = []
     for board in boards:
-        menu_item = {"menu": board.name, "link": "?board_id=%s" % board.board_id}
+        menu_item = {"menu": board.name, "link": "?db_board_id=%s" % board.id}
         result.append(menu_item)
     return result
 
 @register.simple_tag
 def page(request):
-    board_id = request.GET.get('board_id', None)
+    db_board_id = request.GET.get('db_board_id', None)
     start_date = get_start_date(request)
     end_date = get_end_date(request)
     result = {}
     result['start_date'] = start_date
     result['end_date'] = end_date
     result['title'] = "Início"
-    if board_id:
-        board = Board.objects.get(board_id=board_id)
-        result['board_id'] = board.board_id
+    if db_board_id:
+        board = Board.objects.get(id=db_board_id)
+        result['db_board_id'] = board.id
         result['title'] = board.name
     return result
  
  
 @register.simple_tag
 def histogram(request):
-    board_id = request.GET.get('board_id', None)
+    db_board_id = request.GET.get('db_board_id', None)
     graph = []
-    if board_id:
-        board = Board.objects.get(board_id=board_id)
+    if db_board_id:
+        board = Board.objects.get(db_board_id)
         try:
             graph = board.graphdata_set.get(graph="Histogram").data
             graph = json.loads(graph)
@@ -77,9 +77,9 @@ def histogram(request):
 
 @register.simple_tag
 def leadtime(request):
-    board_id = request.GET.get('board_id', None)
-    if board_id:
-        board = Board.objects.get(board_id=board_id)
+    db_board_id = request.GET.get('db_board_id', None)
+    if db_board_id:
+        board = Board.objects.get(id=db_board_id)
         start_date = get_start_date(request)
         end_date = get_end_date(request)
         try:
@@ -103,14 +103,14 @@ def leadtime(request):
 
 @register.simple_tag
 def throughput(request):
-    board_id = request.GET.get('board_id', None)
+    db_board_id = request.GET.get('db_board_id', None)
 
     chart = []
     type_list = list(models.CARD_TYPE_CHOICES)
     result = {'labels': type_list, 'mean_general': '-', 'mean_value': '-',
             'defectload': '-'}
-    if board_id:
-        board = Board.objects.get(board_id=board_id)
+    if db_board_id:
+        board = Board.objects.get(id=db_board_id)
         try:
             start_date = get_start_date(request)
             end_date = get_end_date(request)
@@ -191,12 +191,12 @@ def throughput(request):
 
 @register.simple_tag
 def cfd(request):
-    board_id = request.GET.get('board_id', None)
+    db_board_id = request.GET.get('db_board_id', None)
     start_date = get_start_date(request)
     end_date = get_end_date(request)
     cfd_graph = []
-    if board_id:
-        board = Board.objects.get(board_id=board_id)
+    if db_board_id:
+        board = Board.objects.get(id=db_board_id)
         try:
             cfd_graph_data = board.chartcfd.chartcfddata_set.filter(
                     day__range=(start_date, end_date)).order_by('day')

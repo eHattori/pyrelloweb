@@ -167,7 +167,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['board'] != "":
-            boards = models.Board.objects.filter(board_id=options['board'])
+            boards = models.Board.objects.filter(board_id=options['board'], board_type="trello")
         else:
             boards = models.Board.objects.filter(board_type="trello")
         for board in boards:

@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 import numpy
 from pprint import pprint
+from django.core.exceptions import ObjectDoesNotExist
 
 CARD_TYPE_CHOICES = (
         ("value","Valor"),
@@ -20,6 +21,7 @@ class Board(models.Model):
     board_id = models.CharField(max_length=250)
     trello_user_key = models.CharField(max_length=250)
     trello_user_token = models.CharField(max_length=250)
+    filter_by_label = models.CharField(max_length=250, default="", null=True, blank=True)
     board_type = models.CharField(
             choices = BOARD_TYPE_CHOICES,
             max_length=30,
@@ -31,8 +33,12 @@ class Board(models.Model):
         cards = []
         data = {}
         today_week = datetime.datetime.today().isocalendar()[1]
-    
-        for card in self.card_set.all():
+        if self.filter_by_label:
+            filter_by_label = Label.objects.filter(name=self.filter_by_label)
+        else:
+            filter_by_label = []
+
+        for card in self.card_set.filter(labels__in=filter_by_label):
             end_date = card.end_date
             if end_date!="":
                 week = "%s-%s" % (end_date.isocalendar()[1], end_date.isocalendar()[0])
@@ -249,7 +255,6 @@ class Card(models.Model):
             return None
 
 
-
 class Transaction(models.Model):
     date = models.DateTimeField()
     column = models.ForeignKey(Column, on_delete=models.CASCADE)
@@ -281,6 +286,7 @@ GRAPH_CHOICES = (
         ("ThroughputMean", "Média Throughput"),
         ("ThroughputMedian", "Mediana Throughput"),
 )
+
 
 class GraphData(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
