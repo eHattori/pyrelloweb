@@ -85,7 +85,7 @@ class Command(BaseCommand):
         cfd_hash[cfd_day]= {}
         class EndColumn: name = "Done"
         cards_done = []
-        columns = board.column_set.filter(active=True).order_by('-board_position')
+        columns = board.column_set.filter(Q(active=True) | Q(leadtime_period="End")).order_by('-board_position')
 
         for column in columns:
             transactions = column.transaction_set.filter(
@@ -108,7 +108,7 @@ class Command(BaseCommand):
         return cfd_hash
 
     def get_cfd_header(self, board):
-        columns = board.column_set.filter(active=True).order_by('-board_position')
+        columns = board.column_set.filter(Q(active=True) | Q(leadtime_period="End")).order_by('-board_position')
         header = ['Day']
         for column in columns:
             if column.leadtime_period == 'End':
@@ -154,7 +154,8 @@ class Command(BaseCommand):
 
         for board in boards:
             if board.filter_by_label:
-                self.filter_by_label = Q(labels__in= models.Label.objects.filter(name=board.filter_by_label))
+                labels = models.Label.objects.filter(name=board.filter_by_label)
+                self.filter_by_label = Q(labels__in=labels)
                 self.filter_transaction_by_label = Q(card__labels__in= models.Label.objects.filter(name=board.filter_by_label))
             else:
                 self.filter_by_label = Q()
