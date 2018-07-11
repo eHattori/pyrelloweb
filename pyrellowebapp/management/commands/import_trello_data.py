@@ -18,7 +18,8 @@ class Command(BaseCommand):
         )
 
 
-    def get_all_board_columns(self, board_id, querystring):
+    def get_all_board_columns(self, board, querystring):
+        board_id = board.board_id
         print("Saving columns...")
         querystring["cards"]="none"
         querystring["filter"]="all"
@@ -29,7 +30,7 @@ class Command(BaseCommand):
             columns_json = json.loads(columns_response.text)
             for column in columns_json:
                 try:
-                    column_obj = models.Column.objects.get(column_id=column["id"])
+                    column_obj = models.Column.objects.get(board=board,column_id=column["id"])
                 except:
                     column_obj = models.Column()
                     column_obj.column_id = column["id"]
@@ -42,7 +43,8 @@ class Command(BaseCommand):
 
 
 
-    def get_all_board_labels(self, board_id, querystring):
+    def get_all_board_labels(self, board, querystring):
+        board_id = board.board_id
         print("Saving labels...")
         url = "https://api.trello.com/1/boards/%s/labels" % board_id
         labels_response = requests.request("GET", url, params=querystring)
@@ -53,7 +55,7 @@ class Command(BaseCommand):
 
             for label in labels_json:
                 try:
-                    label_obj = models.Label.objects.get(label_id=label["id"])
+                    label_obj = models.Label.objects.get(board=board,label_id=label["id"])
                 except:
                     label_obj = models.Label()
 
@@ -67,7 +69,7 @@ class Command(BaseCommand):
 
     def save_board_cards(self, card_dict, board):
         try:
-            card_obj = models.Card.objects.get(card_id=card_dict["id"])
+            card_obj = models.Card.objects.get(board=board, card_id=card_dict["id"])
         except:
             card_obj = models.Card()
 
@@ -76,7 +78,7 @@ class Command(BaseCommand):
         labels=[]
         for label in card_dict["labels"]: 
             try:
-                label_obj = models.Label.objects.get(label_id=label["id"])
+                label_obj = models.Label.objects.get(board=board, label_id=label["id"])
                 labels.append(label_obj)
             except Exception as e:
                 pass
@@ -181,9 +183,9 @@ class Command(BaseCommand):
             board_id = board.board_id
             card_list = self.get_card_list(board_id, querystring)
             try: 
-                board.label_set.set(self.get_all_board_labels(board.board_id,
+                board.label_set.set(self.get_all_board_labels(board,
                     querystring), bulk=False)
-                board.column_set.set(self.get_all_board_columns(board.board_id,
+                board.column_set.set(self.get_all_board_columns(board,
                     querystring), bulk=False)
             except Exception as e:
                 print(e)
@@ -218,7 +220,7 @@ class Command(BaseCommand):
                             action_value = self.get_action_value(action)
                             if action_value != None:
                                 try:
-                                    column = models.Column.objects.get(column_id = action_value["list_id"])
+                                    column = models.Column.objects.get(board=board, column_id = action_value["list_id"])
 
                                     card_dict["transactions"].append( models.Transaction(
                                             date = action_value['date'], 
