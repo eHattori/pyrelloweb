@@ -234,7 +234,7 @@ class TestGraphsChart(TestCase):
     def test_cfd_templatetag(self):
         gc = graphs_cache.Command()
         gc.save_cfd_data(self.board)
-        request = self.factory.get('/', {'board_id': 'teste', 'number_of_days':'1'})
+        request = self.factory.get('/', {'db_board_id': 'teste', 'number_of_days':'1'})
         cfd_tag = graphics_tags.cfd(request)
         self.assertEqual(cfd_tag[0], ['Day', 'Done', 'Doing', 'ToDo'])
         expected_date = str(datetime.date.today() - datetime.timedelta(days=1))

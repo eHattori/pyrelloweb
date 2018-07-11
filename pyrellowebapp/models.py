@@ -3,6 +3,7 @@ import datetime
 import numpy
 from pprint import pprint
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
 CARD_TYPE_CHOICES = (
         ("value","Valor"),
@@ -34,11 +35,11 @@ class Board(models.Model):
         data = {}
         today_week = datetime.datetime.today().isocalendar()[1]
         if self.filter_by_label:
-            filter_by_label = Label.objects.filter(name=self.filter_by_label)
+            filter_by_label = Q(labels__in=Label.objects.filter(name=self.filter_by_label))
         else:
-            filter_by_label = []
+            filter_by_label = Q()
 
-        for card in self.card_set.filter(labels__in=filter_by_label):
+        for card in self.card_set.filter(filter_by_label):
             end_date = card.end_date
             if end_date!="":
                 week = "%s-%s" % (end_date.isocalendar()[1], end_date.isocalendar()[0])

@@ -10,6 +10,8 @@ from django.utils import timezone
 
 class Command(BaseCommand):
     local_list_names = {}
+    filter_by_label = Q()
+    filter_transaction_by_label = Q()
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -22,12 +24,8 @@ class Command(BaseCommand):
         )
 
     def save_leadtime(self, board):
-        if board.filter_by_label:
-            filter_by_label = models.Label.objects.filter(name=board.filter_by_label)
-        else:
-            filter_by_label = [] 
         models.ChartLeadtime.objects.filter(card__board=board).delete()
-        for card in board.card_set.filter(labels__in=filter_by_label):
+        for card in board.card_set.filter(self.filter_by_label):
             if card.type == "value":
                 leadtime = card.get_leadtime()
                 if leadtime is not None and leadtime>=0:
@@ -89,16 +87,11 @@ class Command(BaseCommand):
         cards_done = []
         columns = board.column_set.filter(active=True).order_by('-board_position')
 
-        if board.filter_by_label:
-            filter_by_label = models.Label.objects.filter(name=board.filter_by_label)
-        else:
-            filter_by_label = [] 
-
         for column in columns:
             transactions = column.transaction_set.filter(
                      Q(date__date__lte=cfd_day),
                      Q(end_date_cache__date__gt=cfd_day) | Q(end_date_cache__isnull=True),
-                     Q(card__labels__in=filter_by_label),)
+                     self.filter_transaction_by_label,)
             if column.leadtime_period=="End":
                  column = EndColumn
             if column.name not in cfd_hash[cfd_day]:
@@ -160,6 +153,13 @@ class Command(BaseCommand):
             boards = models.Board.objects.all()
 
         for board in boards:
+            if board.filter_by_label:
+                self.filter_by_label = Q(labels__in= models.Label.objects.filter(name=board.filter_by_label))
+                self.filter_transaction_by_label = Q(card__labels__in= models.Label.objects.filter(name=board.filter_by_label))
+            else:
+                self.filter_by_label = Q()
+                self.filter_transaction_by_label = Q()
+
             try:
                 print("Throughput - %s" % board.name)
                 self.save_throughput(board)
