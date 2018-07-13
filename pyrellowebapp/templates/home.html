@@ -56,6 +56,15 @@
             $("#help_histogram_chart").fadeOut();
         });
     });
+    $(function(){
+        $("#help_act_throughput_chart").hover(function(){
+            $("#help_throughput_chart").fadeIn();
+        }
+        ,function(){
+            $("#help_histogram_chart").fadeOut();
+        });
+    });
+
 
     $(function(){
         $("#help_act_mean_value").hover(function(){
@@ -260,8 +269,8 @@
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
                     <text class="card-title">Throughput</text>
-                            <div class="help_act" id="help_act_percentil">?</div>
-                            <div id="help_percentil" class="help">
+                            <div class="help_act" id="help_act_throughput_chart">?</div>
+                            <div id="help_throughput_chart" class="help">
                                 <p><h5>Duvidas sobre essa métrica?</h5>
                                 Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
                                 </p>
