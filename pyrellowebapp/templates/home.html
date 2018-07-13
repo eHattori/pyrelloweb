@@ -2,7 +2,81 @@
 {% block content %}
 {% load graphics_tags %}
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js">
+</script>
+
+
+    <script>
+    $(function(){
+        $("#help_act_percentil").hover(function(){
+            $("#help_percentil").fadeIn();
+        }
+        ,function(){
+            $("#help_percentil").fadeOut();
+        });
+    });
+    $(function(){
+        $("#help_act_delivery_chart").hover(function(){
+            $("#help_delivery_chart").fadeIn();
+        }
+        ,function(){
+            $("#help_delivery_chart").fadeOut();
+        });
+    });
+    $(function(){
+        $("#help_act_defectload").hover(function(){
+            $("#help_defectload").fadeIn();
+        }
+        ,function(){
+            $("#help_defectload").fadeOut();
+        });
+    });
+    $(function(){
+        $("#help_act_cfd_chart").hover(function(){
+            $("#help_cfd_chart").fadeIn();
+        }
+        ,function(){
+            $("#help_cfd_chart").fadeOut();
+        });
+    });
+    $(function(){
+        $("#help_act_leadtime_chart").hover(function(){
+            $("#help_leadtime_chart").fadeIn();
+        }
+        ,function(){
+            $("#help_leadtime_chart").fadeOut();
+        });
+    });
+
+    $(function(){
+        $("#help_act_histogram_chart").hover(function(){
+            $("#help_histogram_chart").fadeIn();
+        }
+        ,function(){
+            $("#help_histogram_chart").fadeOut();
+        });
+    });
+
+    $(function(){
+        $("#help_act_mean_value").hover(function(){
+            $("#help_mean_value").fadeIn();
+        }
+        ,function(){
+            $("#help_mean_value").fadeOut();
+        });
+    });
+    $(function(){
+        $("#help_act_mean_general").hover(function(){
+            $("#help_mean_general").fadeIn();
+        }
+        ,function(){
+            $("#help_mean_general").fadeOut();
+        });
+    });
+    </script>
+
+
+
 <div class="page-content-wrapper">
 <div class="main-container container-fluid">
   {% page request as page %}
@@ -34,13 +108,30 @@
         <div style="min-width:600px; width: 60% !important; width: 600px;">
                 <div style="float:left; margin:16px; width:43%">
                         <div class="card card-single-value mb-3" style="height:150px">
-                          <div class="card-header">{{leadtime_items.percentile_config}}% de valor entregue em até</div>
+                          <div class="card-header">{{leadtime_items.percentile_config}}% de valor entregue em até
+                            <div id="help_act_percentil" class="help_act">?</div>
+                            <div id="help_percentil" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+                          </div>
                           <div class="card-body">
                             <text class="card-title">{{ leadtime_items.percentile }}</text><text class="title">dias</text>
+
                           </div>
                         </div>
                         <div class="card card-single-value mb-3" style="height:150px">
-                          <div class="card-header">Carga de Falha</div>
+                          <div class="card-header">Carga de Falha                            <div class="help_act" id="help_act_defectload">?</div>
+                            <div id="help_defectload" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+</div>
+
                           <div class="card-body">
                             <text class="card-title">{{ throughput_items.defectload }}%</text>
                           </div>
@@ -49,13 +140,29 @@
 
                 <div style="float:left;  margin:20px; width:43%">
                         <div class="card card-single-value mb-3" style="height:150px">
-                          <div class="card-header">Média de entrega de valor semanal</div>
+                          <div class="card-header">Média de entrega de valor semanal
+                            <div class="help_act" id="help_act_mean_value">?</div>
+                            <div id="help_mean_value" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+</div>
                           <div class="card-body">
                             <text class="card-title">{{ throughput_items.mean_value }}</text>
                           </div>
                         </div>
                         <div class="card card-single-value mb-3" style="height:150px">
-                          <div class="card-header">Média de entrega geral semanal</div>
+                          <div class="card-header">Média de entrega geral semanal
+                            <div class="help_act" id="help_act_mean_general">?</div>
+                            <div id="help_mean_general" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+</div>
                           <div class="card-body">
                             <text class="card-title">{{ throughput_items.mean_general}}</text>
                           </div>
@@ -89,7 +196,15 @@
 
 
         <div class="card card-single-value mb-3" style="width:37%; margin-top:20px;  background-color:#fff;">
-            <div class="card-header">Entregas principais por tipo</div>
+            <div class="card-header">Entregas principais por tipo
+                        <div class="help_act" id="help_act_delivery_chart">?</div>
+                            <div id="help_delivery_chart" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+</div>
             <div id="piechart" style="width: 100%; "></div>
         </div>
     </div>
@@ -101,6 +216,12 @@
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
                     <text class="card-title">CFD</text>
+                            <div class="help_act" id="help_act_cfd_chart">?</div>
+                            <div id="help_cfd_chart" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
                 </div>
                 <div class="card-body">
                     <div id="cfd"></div>
@@ -139,6 +260,14 @@
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
                     <text class="card-title">Throughput</text>
+                            <div class="help_act" id="help_act_percentil">?</div>
+                            <div id="help_percentil" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+
                 </div>
                 <div class="card-body">
                     <div id="throughput"></div>
@@ -193,6 +322,14 @@
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
                     <text class="card-title">Leadtime dos cards de Valor</text>
+                            <div class="help_act" id="help_act_leadtime_chart">?</div>
+                            <div id="help_leadtime_chart" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+
                 </div>
                 <div class="card-body">
                   <div id="leadtime"> </div>
@@ -235,6 +372,14 @@
             <div class="card card-single-value mb-3">
                 <div class="card-header">
                     <text class="card-title">Histogram dos cards de Valor</text>
+                            <div class="help_act" id="help_act_histogram_chart">?</div>
+                            <div id="help_histogram_chart" class="help">
+                                <p><h5>Duvidas sobre essa métrica?</h5>
+                                Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
+                                </p>
+                            </div>
+
+
                 </div>
                 <div class="card-body">
                     <div id="histogram"></div>
