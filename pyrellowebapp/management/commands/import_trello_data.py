@@ -131,12 +131,11 @@ class Command(BaseCommand):
     def get_action_value(self, action):
         if action['type'] == "updateCard" and 'listAfter' in action['data']:
             list_key = "listAfter"
-        elif action['type'] in ("createCard", "copyCard"):
+        elif action['type'] in ("createCard", "copyCard","moveCardFromBoard", "convertToCardFromCheckItem", "emailCard", ):
             list_key = "list"
         else:
             return None
         try:
-
             action_dict = {
                 'list_id': action['data'][list_key]['id'],
                 'list_name': action['data'][list_key]['name'],
@@ -152,7 +151,7 @@ class Command(BaseCommand):
 
 
     def get_card_list(self, board_id, querystring):
-        card_params = "limit=300&actions=copyCard,createCard,updateCard"
+        card_params = "limit=300&actions=moveCardFromBoard,convertToCardFromCheckItem,copyCard,emailCard,createCard,updateCard"
         card_url = "https://api.trello.com/1/boards/%s/cards?%s" % (
             board_id, card_params)
 
