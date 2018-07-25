@@ -1,7 +1,6 @@
 from django.db import models
 import datetime
 import numpy
-from pprint import pprint
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
@@ -148,7 +147,7 @@ class Board(models.Model):
 
 LABEL_SERVICE_CLASS = (
         ("expedite", "Expedite"),
-        ("standart", "Tarefa padrão"),
+        ("standard", "Tarefa padrão"),
         ("fixed", "Data fixa"),
         ("intangible", "Intangível"),
         ("none", "Não é classe de serviço")
@@ -232,6 +231,18 @@ class Card(models.Model):
                     return card_type[card_type_key_index]
             
         return "others"
+
+    @property
+    def service_class(self):
+        labels = []
+        for label in self.labels.filter(~Q(service_class='none')): labels.append(label.service_class)
+
+        if labels:
+            for card_service_class in LABEL_SERVICE_CLASS:
+                service_class_key_index = 0
+                if card_service_class[service_class_key_index] != "none" and card_service_class[service_class_key_index] in labels:
+                    return card_service_class[service_class_key_index]
+        return "standard"
 
 
     @property
@@ -321,3 +332,5 @@ class ChartLeadtime(models.Model):
     end_date = models.DateField()
     leadtime = models.IntegerField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    service_class = models.CharField(max_length=30, default="standard")
+    card_type = models.CharField(max_length=30, default="others")

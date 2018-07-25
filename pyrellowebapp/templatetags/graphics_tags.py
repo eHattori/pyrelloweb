@@ -6,6 +6,7 @@ import json
 from django.db.models import Q
 import numpy
 import os
+from django.db.models import Avg, Max, Min, Sum
 
 register = template.Library()
 
@@ -19,6 +20,9 @@ DEFAULT_NUMBER_OF_DAYS = 60
 PERCENTILE_CONFIG = os.environ.get('PERCENTILE', 80)
 DEFAULT_START_DATE = datetime.date.today() - datetime.timedelta(days=DEFAULT_NUMBER_OF_DAYS)
 DEFAULT_END_DATE = datetime.date.today()
+SERVICE_CLASS_OPTIONS = {}
+for key, value in models.LABEL_SERVICE_CLASS:
+    SERVICE_CLASS_OPTIONS[key]=value
 
 def get_start_date(request):
     start_date = request.POST.get('start_date', str(DEFAULT_START_DATE))
@@ -26,6 +30,7 @@ def get_start_date(request):
     start_date = datetime.date(int(start_date[0]),int(start_date[1]),int(start_date[2]))
  
     return start_date
+
 
 def get_end_date(request):
     end_date = request.POST.get('end_date', str(datetime.date.today()))
@@ -44,9 +49,11 @@ def menu():
         result.append(menu_item)
     return result
 
+
 @register.simple_tag
 def page(request):
     db_board_id = request.GET.get('db_board_id', None)
+    service_class_filter = request.POST.get('service_class', "standard")
     start_date = get_start_date(request)
     end_date = get_end_date(request)
     result = {}
@@ -56,6 +63,8 @@ def page(request):
     if db_board_id:
         board = Board.objects.get(id=db_board_id)
         result['db_board_id'] = board.id
+        result['service_class'] = service_class_filter
+        result['service_class_text'] = SERVICE_CLASS_OPTIONS[service_class_filter]
         result['title'] = board.name
     return result
  
@@ -82,24 +91,45 @@ def leadtime(request):
         board = Board.objects.get(id=db_board_id)
         start_date = get_start_date(request)
         end_date = get_end_date(request)
+        service_class_filter = request.POST.get('service_class', "standard")
         try:
-            leadtime = models.ChartLeadtime.objects.filter(card__board=board,
-                    end_date__range=(start_date, end_date)).order_by('end_date')
+            leadtime = models.ChartLeadtime.objects.filter(
+                service_class=service_class_filter,
+                card__board=board,
+                end_date__range=(start_date, end_date)).order_by('end_date')
+
+            leadtime_max = models.ChartLeadtime.objects.filter(
+                service_class=service_class_filter,
+                card__board=board,
+                end_date__range=(start_date, end_date)).order_by('end_date').aggregate(Max('leadtime'))
+            
+            max_vAxis = 50
+            if leadtime_max['leadtime__max']!=None and leadtime_max['leadtime__max']<50:
+                max_vAxis = leadtime_max['leadtime__max']
+
+            leadtime_value = models.ChartLeadtime.objects.filter(
+                card_type="value",
+                card__board=board,
+                end_date__range=(start_date, end_date)).order_by('end_date')
+
             total_items = []
-            for item in leadtime:
+            for item in leadtime_value:
                 total_items.append(item.leadtime)
+
             try:
-                percentile = "%.1f" % round(numpy.percentile(total_items, PERCENTILE_CONFIG),2)
+                value_percentile = "%.1f" % round(numpy.percentile(total_items, PERCENTILE_CONFIG),2)
             except:
-                percentile = "-"
+                value_percentile = "-"
             result = {
                 'percentile_config' : PERCENTILE_CONFIG,
-                'percentile' : percentile,
-                'cards': leadtime}
+                'value_percentile' : value_percentile,
+                'cards': leadtime,
+                'max_vAxis': max_vAxis}
             return result
         except Exception as e:
             print("error leadtime  %s" % e)
     return None
+
 
 @register.simple_tag
 def throughput(request):

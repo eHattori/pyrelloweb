@@ -26,7 +26,7 @@ class Command(BaseCommand):
     def save_leadtime(self, board):
         models.ChartLeadtime.objects.filter(card__board=board).delete()
         for card in board.card_set.filter(self.filter_by_label):
-            if card.type == "value":
+            if card.type != "others":
                 leadtime = card.get_leadtime()
                 if leadtime is not None and leadtime>=0:
                     try:
@@ -34,6 +34,8 @@ class Command(BaseCommand):
                     except models.ChartLeadtime.DoesNotExist:
                         leadtime_chart = models.ChartLeadtime()
                         leadtime_chart.card = card
+                    leadtime_chart.service_class = card.service_class
+                    leadtime_chart.card_type = card.type
                     leadtime_chart.end_date = card.end_date
                     leadtime_chart.leadtime = leadtime
                     leadtime_chart.save()

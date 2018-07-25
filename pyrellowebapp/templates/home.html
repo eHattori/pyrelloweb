@@ -85,13 +85,13 @@
     </script>
 
 
-
+<form method="post">
 <div class="page-content-wrapper">
 <div class="main-container container-fluid">
   {% page request as page %}
     <div>
         <div>
-          <form method="post">{% csrf_token %} <input type="hidden" name="db_board_id"
+          {% csrf_token %} <input type="hidden" name="db_board_id"
             value="{{page.db_board_id}}"/> <text class="page-title">
             {{page.title }}</h3>
           {% if page.db_board_id %}
@@ -101,11 +101,22 @@
                         min="1000-01-01" class="input-date" value="{{page.start_date|date:"Y-m-d"}}"> até 
                  <input type="date" name="end_date" min="1000-01-01"
                         max="3000-12-31" class="input-date" value="{{page.end_date|date:"Y-m-d"}}"> 
+                 Classe de serviço: 
+
+                    <select name="service_class" id="service_class" class="input-date">
+                      <option value="standard">Padrão</option>
+                      <option value="expedite">Expedite</option>
+                      <option value="fixed">Data fixa</option>
+                      <option value="intangible">Intangível</option>
+                    </select>
+
+                    <script>$("#service_class").val("{{page.service_class}}");</script>
+                           
                  <input type="submit" value="Filtrar"/>
             </h6>
             </div>
           {% endif %}
-          </form>
+
         </div>
     </div>
 
@@ -127,7 +138,7 @@
 
                           </div>
                           <div class="card-body">
-                            <text class="card-title">{{ leadtime_items.percentile }}</text><text class="title">dias</text>
+                            <text class="card-title">{{ leadtime_items.value_percentile }}</text><text class="title">dias</text>
 
                           </div>
                         </div>
@@ -330,15 +341,14 @@
         <div class="col-md-12">
             <div class="card card-single-value mb-3">   
                 <div class="card-header">
-                    <text class="card-title">Leadtime dos cards de Valor</text>
+                    <text class="card-title">Leadtime dos cards da classe de serviço: <span style="color:red">{{page.service_class_text}}</span></text>
+
                             <div class="help_act" id="help_act_leadtime_chart">?</div>
                             <div id="help_leadtime_chart" class="help">
                                 <p><h5>Duvidas sobre essa métrica?</h5>
                                 Por favor, utilize o botão de feedback no canto direito da página e nos informe quais perguntas você gostaria que fossem respondidas nesse espaço.
                                 </p>
                             </div>
-
-
                 </div>
                 <div class="card-body">
                   <div id="leadtime"> </div>
@@ -351,10 +361,24 @@
                     function drawBasic() {
                           var data = new google.visualization.DataTable();
                           data.addColumn('number', 'X');
-                          data.addColumn('number', 'Card');
+                          data.addColumn('number', 'Valor');
+                          data.addColumn('number', 'Bug');
+                          data.addColumn('number', 'Melhorias');
+                          data.addColumn('number', 'Ops');
                               var list_data = [
                                   {% for item in leadtime_items.cards %}
-                                [{v:{{ forloop.counter0 }}, f:'{{item.leadtime}} days'},  {v:{{item.leadtime}}, f:'{{item.card.name}}'}],
+                                        {% if item.card_type == 'value' %}
+                                         [{v:{{forloop.counter}}, f:'{{item.leadtime}} days'},{v:{{item.leadtime}}, f:'{{item.card.name}}'}, null, null, null],
+                                        {% endif %}
+                                        {% if item.card_type == 'bug' %}
+                                         [{v:{{forloop.counter}}, f:'{{item.leadtime}} days'}, null, {v:{{item.leadtime}}, f:'{{item.card.name}}'}, null, null],
+                                        {% endif %}
+                                        {% if item.card_type == 'improvement' %}
+                                         [{v:{{forloop.counter}}, f:'{{item.leadtime}} days'}, null, null, {v:{{item.leadtime}}, f:'{{item.card.name}}'}, null],
+                                        {% endif %}
+                                        {% if item.card_type == 'ops' %}
+                                         [{v:{{forloop.counter}}, f:'{{item.leadtime}} days'}, null, null, null, {v:{{item.leadtime}}, f:'{{item.card.name}}'}],
+                                        {% endif %}
                                   {% endfor %}
                                 ]
                           data.addRows(list_data);
@@ -363,12 +387,18 @@
                               title: 'Cards'
                             },
                             vAxis: {
-                              title: 'Days'
-                            }
+                              title: 'Leadtime (Days)',
+                              minValue: 0, maxValue: 4,
+                              viewWindow: {
+                                min: 0,
+                                max: {{leadtime_items.max_vAxis}}
+                               }
+                           },
+                           colors:['#8BC34A','#FF5733','#90CAF9','#FFE082',]
                           };
 
                           var chart = new
-                        google.visualization.LineChart(document.getElementById('leadtime'));
+                        google.visualization.ScatterChart(document.getElementById('leadtime'));
 
                           chart.draw(data, options);
                         }
@@ -380,7 +410,7 @@
         <div class="col-md-12">
             <div class="card card-single-value mb-3">
                 <div class="card-header">
-                    <text class="card-title">Histogram dos cards de Valor</text>
+                    <text class="card-title">Histogram dos cards da classe de serviço: <span style="color:red">{{page.service_class_text}}</span></text> 
                             <div class="help_act" id="help_act_histogram_chart">?</div>
                             <div id="help_histogram_chart" class="help">
                                 <p><h5>Duvidas sobre essa métrica?</h5>
@@ -411,6 +441,10 @@
                       var options = {
                         title: 'Quantidade de cards entregues por período de tempo',
                         legend: { position: 'none' },
+                        histogram: {
+                            bucketSize: 5,
+                            maxNumBuckets: 30,
+                        },
                       };
                     
                       var chart = new google.visualization.Histogram(document.getElementById('histogram'));
@@ -423,4 +457,5 @@
     {% endif %}
 </div>
 
+</form>
 {% endblock %}
